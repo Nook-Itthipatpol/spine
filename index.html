@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ============================================================================
-  Spine Week — v8
+  Spine Week — v9
   ============================================================================
   Lumbar hypolordosis + low spinal mobility. AS and Scheuermann's ruled out.
 
@@ -16,6 +16,28 @@
   3. Write these rules into this comment in every version.
   4. Say what changed and why. A fix with no note becomes a mystery on the next
      pass.
+
+  v9 — trim to two weekly days + three-item Daily
+  ---------------------------------------------------------------------------
+  Cut the weekly split from three days (Tue posterior chain / Fri mobility /
+  Sun optional legs) to two: Gym day (Deep RDL, Goblet squat, Single-arm cable
+  row, Scapular pull-up, Assisted pull-up, Face-pull, 45° Back extension) and
+  Mat day (Psoas march banded, Deep neck flexor hold, Segmental cat-cow, Prone
+  Y + T). Warm-up, split squat, calf raise, eccentric slider leg curl,
+  standing high-knee hold, half-kneeling hinge reach, open book, and 90/90 hip
+  switch are dropped — not because they were wrong, but because a shorter list
+  actually gets done. 1-arm DB row became Single-arm cable row (id kept as
+  `row`); its illustration was dropped since it no longer matches the setup.
+  Two brand-new items — Scapular pull-up and Assisted pull-up — build toward
+  an unassisted pull-up, which the cable row doesn't train.
+  Daily block cut from 6 items to 3, kept in this order: Supine pelvic tilt →
+  Hamstring contract–relax → Quadruped rock-back. Chin tuck and the daily
+  Segmental cat-cow copy are dropped (cat-cow still lives on Mat day). The
+  slump-only Sciatic nerve slider stays, appended after the three, since it is
+  a conditional safety item tied to the Tests tab rather than a standing daily
+  exercise. Sets/reps and progression rules for surviving items are unchanged;
+  history data is preserved because ids `rdl`, `gsq`, `row`, `fp`, `bex`,
+  `psm`, `dnf`, `cc`, `yt`, `d1`, `d2`, `d4`, `dn` carry over from v8.
 
   v8 — readability pass · exercise / Why / Tests only
   ---------------------------------------------------------------------------
@@ -456,7 +478,7 @@
 
 <script>
 /* ================= config ================= */
-const APP_VERSION='v8';
+const APP_VERSION='v9';
 const KEY   = 'spine:v1';
 const HIDX  = 'spine:hist:index';
 const HSHARD= y => `spine:hist:${y}`;
@@ -480,118 +502,84 @@ const CEILING =
 
 /* ================= plan · resistance & mobility sessions ================= */
 const PLAN=[
- {dow:'TUE',title:'Posterior chain',kind:'load',items:[
-  {id:'wa',noWeight:1,name:'Warm-up · extension prep',dose:'4 นาที · 2 ท่า',
-   target:'prep <b>extension range + lordosis position</b> ก่อนรับโหลด เพื่อให้ท่าหลักเริ่มจาก pattern ที่ต้องการ',
-   note:'<b>1 · Prone press-up 2 × 8</b> — นอนคว่ำ → ดันอกขึ้นด้วยแขน → <b>สะโพกติดพื้น</b> → ค้างบนสุด 3 วิ<br><b>2 · Thoracic extension over roller</b> — roller ขวางกลางหลัง → extend พาดลงไป → ทำ 3 ระดับจาก lower → upper T-spine ระดับละ 5 breaths',
-   mistake:'static hamstring stretch ก่อนเวท · roller ต่ำจน movement ไปอยู่ที่ lumbar spine · press-up แล้วสะโพกลอย'},
-
+ {dow:'TUE',title:'Gym day',kind:'load',items:[
   {id:'rdl',name:'Deep RDL',dose:'3 × 6–8 · tempo 4-3-1-0 · rest 2:30',art:'index_v6_assets/rdl-lordosis-vs-flatback-v1.svg',
    target:'<b>Main lift</b> · ฝึก anterior pelvic/lumbar control <b>under load</b> พร้อม long-length hamstring loading · priority = position + tempo ก่อน load',
    note:'<b>Setup</b> — เท้ากว้างสะโพก · งอเข่าเล็กน้อยแล้ว<b>คงมุมเข่าเดิม</b> · PVC แตะ sacrum + T-spine โดยยังมี lumbar gap<br><b>Rep</b> — set lordosis → hip hinge ลง <b>4 วิ</b> → pause <b>3 วิ</b> → ขึ้น 1 วิ → rep ต่อไปทันที<br>'+CEILING+'<br><b>Load</b> — สัปดาห์ 1–2 ใช้บาร์เปล่าหรือดัมเบล 2×5 kg · RPE 6–7 หรือประมาณ 3–4 RIR · <b>progress depth ก่อน load</b>: ทำ 3×8 ที่ depth เดิมได้ด้วย form คงที่ 2 สัปดาห์ติด จึงเพิ่ม 2.5 kg · target load ประมาณ 50–60% BW; สูงกว่านี้ไม่จำเป็นสำหรับเป้าหมายของโปรแกรม<br><b>ถ่ายวิดีโอด้านข้างทุก 2 สัปดาห์</b> เพื่อเช็กว่า lordosis ยังอยู่ตลอด ROM',
    mistake:'ลงเร็ว/เด้งจาก bottom · lumbar flex ก่อนจุดล่าง · งอเข่าเพิ่มเพื่อเอา depth · เพิ่ม load ก่อน depth + form นิ่ง'},
 
+  {id:'gsq',name:'Goblet squat',dose:'3 × 8',art:['index_v6_assets/wg-goblet-squat-start.svg','index_v6_assets/wg-goblet-squat-bottom.svg'],
+   target:'general lower-body strength · <b>ไม่ใช่ corrective lift หลัก</b>',
+   note:'ถือ DB ที่อก → squat ลงระหว่างเข่า → <b>หยุดก่อน posterior pelvic tilt / butt wink</b> · ใช้ heel wedge ได้ถ้า ankle dorsiflexion จำกัด',
+   mistake:'ลงลึกจน butt wink ทุกครั้ง · หนักจนหลังกลม'},
+
+  {id:'row',name:'Single-arm cable row',dose:'3 × 10 /ข้าง · rest 60s',
+   target:'scapular retraction + <b>hold trunk position against a rotational pull</b> · useful accessory แต่ไม่ใช่ main driver',
+   note:'ยืนหรือ half-kneeling หันข้างลำตัวเข้าหา cable ระดับกลางลำตัว → <b>ตั้ง lordosis</b> → ดึงศอกผ่านลำตัวตรงๆ → squeeze scapula 1 วิ → คืนช้ากว่าตอนดึง โดยไม่ให้สายดึงตัวหมุนตาม · น้ำหนัก = ต่อข้าง',
+   mistake:'หมุน trunk ตามแรงดึง · โน้มตัวช่วยแรง · กระตุกแทน scapular movement'},
+
+  {id:'spu',name:'Scapular pull-up',dose:'3 × 8 · ค้าง 2 วิ · rest 60s',
+   target:'ฝึก scapular depression/retraction ล้วนๆ ก่อนเอาไปต่อยอดเป็น pull-up จริง · เป็น prerequisite ของ assisted pull-up ด้านล่าง',
+   note:'ห้อยตัวจากบาร์แบบ full hang แขนเหยียด → <b>ไม่งอศอก</b> → ดึงสะบักลงและเข้าหากันให้ตัวลอยขึ้นเล็กน้อย → ค้าง 2 วิ → คืนกลับ full hang ช้าๆ ก่อนเริ่ม rep ใหม่',
+   mistake:'งอศอกช่วยดึง · เหวี่ยงตัว (kipping) · ไม่กลับสู่ full hang ระหว่าง rep'},
+
+  {id:'apu',name:'Assisted pull-up',dose:'3 × 6 · rest 90s',
+   target:'vertical pulling strength เพื่อไปสู่ unassisted pull-up · ต่อยอดจาก scapular pull-up',
+   note:'ใช้ resistance band คล้องเข่า/เท้า หรือ assisted pull-up machine → จับบาร์กว้างประมาณไหล่ → ดึงคางขึ้นเหนือบาร์ใน ~2 วิ → ปล่อยลงคุม eccentric ~3 วิ จนแขนเหยียดเกือบสุด · ลด assistance ลงเมื่อทำครบเซตด้วย form นิ่ง 2 สัปดาห์ติด',
+   mistake:'เหวี่ยงตัว/kipping · ปล่อยตัวลงเร็วโดยไม่คุม eccentric · ไม่ดึงจนคางพ้นบาร์'},
+
+  {id:'fp',name:'Face pull',dose:'3 × 15 · tempo 2-1-2-0',art:'index_v6_assets/face-pull-v2.svg',
+   target:'scapular retraction + external rotation แบบ load เบา / reps สูง',
+   note:'rope ระดับหน้า → ดึงเข้าหน้าผาก + <b>แยกมือออกตอนจบ</b> → elbows สูงกว่าไหล่ → squeeze 1 วิ → return 2 วิ · load เบาพอไม่ต้องเอนตัว',
+   mistake:'เอนหลังถ่วง · ดึงเข้าอก · elbows ตก'},
+
+  {id:'bex',name:'45° Back extension',dose:'3 × 12 · tempo 2-2-1-0 · rest 90s',art:'index_v6_assets/back-extension-neutral-vs-hyperextend-v1.svg',
+   target:'strengthen lumbar erector/multifidus โดย<b>คุม extension against gravity</b>',
+   note:'pad อยู่ใต้ ASIS → ลง 2 วิ → ขึ้นถึง neutral/slight extension → <b>ค้าง 2 วิ</b> · ไม่ต้อง hyperextend · เริ่ม bodyweight แล้วค่อยเพิ่ม plate; ช่องน้ำหนัก = plate ที่กอด',
+   mistake:'เหวี่ยงขึ้น · hyperextend · หลังกลมตอนลง'}
+ ]},
+
+ {dow:'FRI',title:'Mat day',kind:'mobility',items:[
   {id:'psm',noWeight:1,name:'Psoas march (banded)',dose:'3 × 8 /ข้าง · rest 60s',art:['index_v6_assets/wg-psoas-march-start.svg','index_v6_assets/wg-psoas-march-extend.svg'],
    target:'ฝึก psoas + <b>lordosis control ระหว่างขาเคลื่อน</b> · ใน pattern นี้ treat psoas เป็น strength/control problem มากกว่าจะ assume ว่าตึง',
    note:'นอนหงาย hip 90° · band ที่ฝ่าเท้า · <b>set lordosis</b> → เหยียดขาหนึ่งออก 3 วิ โดยคง lumbar gap → ดึงกลับและ hold hip flexion 3 วิ<br><b>หยุดเมื่อเอวเริ่ม flatten</b> — form เป็นตัวจบเซต ไม่ใช่จำนวน rep',
    mistake:'เอว flatten ตอนเหยียด · เร่งจนใช้ momentum · band หนักจนคุม lumbar position ไม่ได้'},
 
-  {id:'bex',name:'45° Back extension',dose:'3 × 12 · tempo 2-2-1-0 · rest 90s',art:'index_v6_assets/back-extension-neutral-vs-hyperextend-v1.svg',
-   target:'strengthen lumbar erector/multifidus โดย<b>คุม extension against gravity</b>',
-   note:'pad อยู่ใต้ ASIS → ลง 2 วิ → ขึ้นถึง neutral/slight extension → <b>ค้าง 2 วิ</b> · ไม่ต้อง hyperextend · เริ่ม bodyweight แล้วค่อยเพิ่ม plate; ช่องน้ำหนัก = plate ที่กอด',
-   mistake:'เหวี่ยงขึ้น · hyperextend · หลังกลมตอนลง'},
-
-  {id:'row',name:'1-arm DB row',dose:'3 × 10 /ข้าง · rest 60s',art:['index_v6_assets/wg-one-arm-row-start.svg','index_v6_assets/wg-one-arm-row-finish.svg'],
-   target:'scapular retraction + <b>hold lordosis in a sustained hinge</b> · useful accessory แต่ไม่ใช่ main driver',
-   note:'เข่า + มือข้างหนึ่งบนม้านั่ง · ลำตัวเกือบขนานพื้นและ<b>คง lordosis</b> → ดึงศอกผ่านลำตัว → squeeze scapula 1 วิ → lower ช้ากว่าตอนดึง · น้ำหนัก = ต่อข้าง',
-   mistake:'หมุน trunk ช่วย · หลังกลม · กระตุกแทน scapular movement'},
-
   {id:'dnf',noWeight:1,name:'Deep neck flexor hold',dose:'3 × 20s · rest 30s',
    target:'ฝึก deep neck flexors เพื่อ <b>cervical position control</b>',
    note:'นอนหงาย → <b>chin tuck ก่อน</b> → ยกหัวพ้นพื้น ~1 cm → หายใจปกติ<br>ถ้า SCM โป่ง/ล้าก่อน ให้ลด hold เหลือ 10 วิแล้วเพิ่มจำนวนเซต',
-   mistake:'ยกหัวสูง · ยกโดยไม่เก็บคางก่อน · กลั้นหายใจ'}
- ]},
+   mistake:'ยกหัวสูง · ยกโดยไม่เก็บคางก่อน · กลั้นหายใจ'},
 
- {dow:'FRI',title:'Mobility & long length',kind:'mobility',items:[
-  {id:'cc',ss:'A',noWeight:1,name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v6_assets/cat-cow-segmental-v1.svg',
+  {id:'cc',noWeight:1,name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v6_assets/cat-cow-segmental-v1.svg',
    target:'spinal mobility โดยเน้น <b>segmental control</b> — ให้แต่ละช่วงขยับ ไม่ใช่ทั้ง spine เคลื่อนเป็นก้อนเดียว',
    note:'quadruped → เริ่มที่ sacrum แล้วไล่<b>ทีละ segment</b>ขึ้นถึงคอ → reverse กลับ · <b>4 วิ/ทิศ</b> · focus ว่าช่วงไหนขยับก่อน/ยังติด มากกว่าทำ curve ให้ใหญ่',
    mistake:'เร็วเกินไป · spine ขยับทั้งแผง · ใช้ไหล่ดันแทน spinal movement'},
-  {id:'ob',ss:'A',noWeight:1,name:'Open book',dose:'8 /ข้าง · ค้าง 3 วิ',
-   target:'เพิ่ม <b>thoracic rotation</b> โดยไม่เอา ROM มาจาก lumbar rotation',
-   note:'นอนตะแคง hip/knee 90° · แขนซ้อนกัน → <b>หายใจออก + เปิดแขนบนไปด้านหลัง</b> → ตามมือด้วยตา · เข่าค้างที่เดิม · hold 3 วิ',
-   mistake:'เข่าเปิดตาม · กลั้นหายใจ · เหวี่ยงแขน'},
-  {id:'h99',ss:'A',noWeight:1,name:'90/90 hip switch',dose:'10 รอบ',
-   target:'ฝึก hip rotation โดย<b>แยก pelvis/hip movement ออกจาก lumbar compensation</b>',
-   note:'นั่ง 90/90 และ<b>คง lordosis</b> → rotate เข่าทั้งสองไปอีกฝั่งช้าๆ โดย trunk ยังตั้ง · ถ้าหลังกลม ให้นั่งบน cushion/foam',
-   mistake:'นั่งหลังกลมทั้งเซต · ใช้มือดันพื้นสวิงตัว · เร่งจังหวะ'},
-
-  {id:'slc',noWeight:1,name:'Eccentric slider leg curl',dose:'3 × 6 · ลง 5 วิ · rest 2:00',
-   target:'long-length hamstring loading ผ่าน <b>knee flexion</b>; complement กับ RDL ที่โหลดผ่าน hip extension',
-   note:'glute bridge โดยส้นอยู่บน slider → เหยียดเข่าออก <b>5 วิ โดยสะโพกไม่ตก</b> → สุด range วางสะโพก → ใช้แขนช่วย reset เพื่อคง eccentric focus<br>2 ขา → 1 ขาเมื่อคุม 3×8 ได้<br><b>Nordic curl หลัง wk12</b> ถ้ายังต้องการ progress',
-   mistake:'สะโพกตก · eccentric <5 วิ · ใช้ขาดึงกลับแทน reset ด้วยแขน'},
-
-  {id:'hkh',noWeight:1,name:'Standing high-knee hold',dose:'3 × 20s /ข้าง · rest 45s',
-   target:'ฝึก psoas ใน <b>shortened range</b> ด้วย isometric hold; complement กับ dynamic psoas march',
-   note:'ยืนขาเดียว → <b>เข่าสูงกว่าสะโพก</b> → trunk ตั้ง + คง lordosis → hold 20 วิ · ไม่ใช้มือ/ผนังช่วย',
-   mistake:'เข่าหยุดแค่ 90° · เอนหลังชดเชย · พิงช่วย'},
-
-  {id:'hkr',noWeight:1,name:'Half-kneeling hinge reach',dose:'3 × 8 /ข้าง · ค้าง 2 วิ',
-   target:'hamstring mobility โดย<b>ได้ ROM จาก hip hinge ไม่ใช่ lumbar flexion</b>',
-   note:'half-kneeling · ขาหน้าเหยียด ส้นติดพื้น → <b>set lordosis</b> → hip hinge ไปหน้า → <b>หยุดเมื่อ lumbar spine เริ่ม flex</b> → hold 2 วิ<br>ควรรู้สึกหลักที่ posterior thigh; ถ้าหลังตึงเด่น ให้ลด depth',
-   mistake:'ไล่แตะปลายเท้าจนหลังกลม · งอเข่าหน้า · bounce'},
 
   {id:'yt',name:'Prone Y + T',dose:'2 × 10 แต่ละแบบ · ค้าง 2 วิ',art:['index_v6_assets/wg-prone-y-raise.svg','index_v6_assets/wg-prone-t-raise.svg'],
    target:'lower trap/posterior deltoid + thoracic extension · เป้าคือ <b>trunk + scapular control</b>',
    note:'นอนคว่ำ · <b>Y</b> แขน ~45° thumb up · <b>T</b> แขนกางด้านข้าง → ยกแขนพร้อมอกเล็กน้อย → hold 2 วิ · DB 1–2 kg พอ · น้ำหนัก = ต่อข้าง',
-   mistake:'แอ่น lumbar แทน thoracic lift · ไหล่ shrug · เร็วจนไม่มี hold'},
-
-  {id:'fp',name:'Face pull',dose:'3 × 15 · tempo 2-1-2-0',art:'index_v6_assets/face-pull-v2.svg',
-   target:'scapular retraction + external rotation แบบ load เบา / reps สูง',
-   note:'rope ระดับหน้า → ดึงเข้าหน้าผาก + <b>แยกมือออกตอนจบ</b> → elbows สูงกว่าไหล่ → squeeze 1 วิ → return 2 วิ · load เบาพอไม่ต้องเอนตัว',
-   mistake:'เอนหลังถ่วง · ดึงเข้าอก · elbows ตก'}
- ]},
-
- {dow:'SUN',title:'Legs',sub:'· optional',kind:'optional',items:[
-  {id:'gsq',name:'Goblet squat',dose:'3 × 8',art:['index_v6_assets/wg-goblet-squat-start.svg','index_v6_assets/wg-goblet-squat-bottom.svg'],
-   target:'general lower-body strength · <b>ไม่ใช่ corrective lift หลัก</b>',
-   note:'ถือ DB ที่อก → squat ลงระหว่างเข่า → <b>หยุดก่อน posterior pelvic tilt / butt wink</b> · ใช้ heel wedge ได้ถ้า ankle dorsiflexion จำกัด',
-   mistake:'ลงลึกจน butt wink ทุกครั้ง · หนักจนหลังกลม'},
-  {id:'spl',name:'Split squat',dose:'3 × 10 /ข้าง',art:['index_v6_assets/wg-split-squat-start.svg','index_v6_assets/wg-split-squat-bottom.svg'],
-   target:'unilateral leg strength + active hip extension ของขาหลัง',
-   note:'stance ค่อนข้างยาว → ลงตรงๆ จนเข่าหลังเกือบแตะพื้น → <b>squeeze glute ขาหลังตอนขึ้น</b> · น้ำหนัก = ต่อข้าง',
-   mistake:'โน้มตัวไปหน้ามาก · ก้าวสั้นจนเข่าหน้าเลยปลายเท้ามาก'},
-  {id:'cal',name:'Calf raise',dose:'3 × 15',art:['index_v6_assets/wg-calf-raise-bottom.svg','index_v6_assets/wg-calf-raise-top.svg'],
-   target:'calf strength + ankle ROM',
-   note:'ยืนบนขอบขั้น ปล่อยส้นลงต่ำสุดค้าง 2 วินาที แล้วเขย่งขึ้นสุด',
-   mistake:'เด้งเป็นจังหวะ · ไม่ปล่อยส้นลงสุด'}
+   mistake:'แอ่น lumbar แทน thoracic lift · ไหล่ shrug · เร็วจนไม่มี hold'}
  ]}
 ];
 
 /* ================= daily block ================= */
-/* The order is not a preference. Motor control has to come before tissue work,
-   or the tissue work is done in the pattern being corrected. */
+/* The order is not a preference: find the position first, release the tissue
+   that's fighting it, then load that position in a closed-chain hold. Reverse
+   the first two and the release is wasted on a pelvis that's still stuck; skip
+   straight to weight-bearing and there's no position left to hold. */
 const DAILY=[
  {id:'d1',name:'Supine pelvic tilt',dose:'2 × 10 · ค้าง 5 วิ',
   target:'<b>position drill หลัก</b> · ฝึกสร้าง anterior pelvic tilt / lumbar lordosis ได้เอง ก่อนเอาไปใช้ใน weight-bearing',
   note:'นอนหงายชันเข่า + <b>หลังมือใต้เอว</b> → anterior pelvic tilt ให้ lumbar arch เพิ่มเล็กน้อย → hold 5 วิ → neutral · <b>ไม่กดเอวแบน</b><br>ควรรู้สึก lumbar control มากกว่า glute squeeze; ถ้าก้นทำงานเด่น ให้ลด range',
   mistake:'บีบก้นเพื่อช่วย · ดันด้วยเท้าจนสะโพกยกลอย · ทำเร็วเป็นจังหวะโดยไม่ค้าง'},
- {id:'d2',name:'Quadruped rock-back',dose:'2 × 10 · ค้าง 3 วิ',
-  target:'เอา lordosis control ไปใช้ใน <b>closed-chain / weight-bearing</b> ก่อนต่อยอดไป hinge และท่ายืน',
-  note:'quadruped → <b>set lordosis</b> → rock สะโพกไปหลังช้าๆ → <b>หยุดก่อน lumbar flexion</b> → hold 3 วิ → กลับ · จุดนั้นคือ usable ROM; ไม่ต้องฝืนถึงส้น',
-  mistake:'ถอยจนก้นแตะส้นเท้าโดยยอมให้หลังกลม · ลืมตั้ง lordosis ก่อนเริ่ม · ทำเร็ว'},
- {id:'d3',name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v6_assets/cat-cow-segmental-v1.svg',
-  target:'<b>frequent, low-dose segmental mobility</b> เพื่อให้ spine ได้ขยับทีละช่วงทุกวัน',
-  note:'ไล่ทีละปล้อง ช้ามาก 4 วินาทีต่อทิศทาง · รายละเอียดเต็มอยู่ในการ์ดวันศุกร์',
-  mistake:'ทำเร็ว · เคลื่อนทั้งแผงพร้อมกัน'},
  {id:'d4',name:'Hamstring contract–relax',dose:'4 รอบ /ข้าง',
   target:'hamstring contract–relax โดย<b>คุม pelvis + lumbar position</b> ไม่ให้ ROM มาจากหลัง',
   note:'นอนหงาย · strap ที่เท้า · <b>ขาอีกข้างเหยียดติดพื้น</b> + คง lumbar arch<br>1 รอบ = ดันสู้ strap 20–30% <b>5 วิ</b> → relax → เพิ่ม range เท่าที่ pelvis ยังนิ่ง → hold <b>20 วิ</b>',
   mistake:'งอเข่าข้างที่ไม่ได้ทำ · กดหลังแบนติดพื้น · ออกแรงดันเต็มที่ (20–30% พอ)'},
- {id:'d5',name:'Chin tuck',dose:'10 × ค้าง 5 วิ',
-  target:'micro-drill สำหรับ forward-head control',
-  note:'ดึงคางตรงเข้า → ท้ายทอยยาวขึ้น <b>เหมือนมีเส้นดึงกลางกระหม่อม</b> · ไม่ก้มหน้า · hold 5 วิ',
-  mistake:'ก้มหน้าแทนการเก็บคาง · เกร็งไหล่ตาม'},
+ {id:'d2',name:'Quadruped rock-back',dose:'2 × 10 · ค้าง 3 วิ',
+  target:'เอา lordosis control ไปใช้ใน <b>closed-chain / weight-bearing</b> ก่อนต่อยอดไป hinge และท่ายืน',
+  note:'quadruped → <b>set lordosis</b> → rock สะโพกไปหลังช้าๆ → <b>หยุดก่อน lumbar flexion</b> → hold 3 วิ → กลับ · จุดนั้นคือ usable ROM; ไม่ต้องฝืนถึงส้น',
+  mistake:'ถอยจนก้นแตะส้นเท้าโดยยอมให้หลังกลม · ลืมตั้ง lordosis ก่อนเริ่ม · ทำเร็ว'},
  {id:'dn',slumpOnly:1,name:'Sciatic nerve slider',dose:'2 × 10 · วันละ 2 ครั้ง',
   target:'ใช้เมื่อ slump positive · เป้าคือ <b>neural glide ไม่ใช่ end-range stretch</b>',
   note:'นั่งตัวตรง → สลับ <b>cervical flexion + knee extension</b> ↔ <b>cervical extension + knee flexion</b> · ~2 วิ/ทิศ<br>movement ต้องลื่นและ<b>ไม่เพิ่มอาการ</b> · re-test slump หลัง 3–4 สัปดาห์; negative แล้วค่อยกลับ hamstring loading เต็ม',
@@ -912,7 +900,7 @@ function buildDaily(){
   }).join('')+
   '<div class="prbox"><span class="prh">Why Daily is separate</span>'+
   '<p class="prt">motor control ต้องการ<b>frequency มากกว่า session volume</b> · 10 นาทีที่ทำได้เกือบทุกวันมีค่ากว่า session ยาวแต่ทำไม่สม่ำเสมอสำหรับเป้าหมายนี้ · <b>ถ้าวันไหนมีเวลาเลือกได้อย่างเดียว ให้ทำ Daily Block ก่อน gym session</b></p>'+
-  '<p class="prt">order มีเหตุผล: หาและคุม position ก่อน → แล้วค่อยทำ mobility / tissue work · ถ้าทำกลับกัน มีโอกาสใช้ ROM ใหม่ด้วย movement pattern เดิม</p></div>';
+  '<p class="prt">order มีเหตุผล: หา position ก่อน (pelvic tilt) → ปลด tissue ที่ดึงกลับ (hamstring) → แล้วค่อยเอา position นั้นไปคุมใน closed-chain load (quadruped) · ถ้าทำกลับกัน tissue release จะเสียเปล่าเพราะ pelvis ยังคุมไม่ได้ตั้งแต่แรก</p></div>';
 }
 habEl.addEventListener('click',e=>{
   const b=e.target.closest('[data-hab]');
