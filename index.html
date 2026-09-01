@@ -268,6 +268,9 @@
     display:block;width:min(100%,340px);height:auto;margin:0 auto;
     filter:invert(86%) sepia(8%) saturate(430%) hue-rotate(160deg) brightness(102%) contrast(92%);
   }
+  .poseart img[src*="/wg-"]{
+    filter:brightness(0) saturate(100%) invert(79%) sepia(23%) saturate(692%) hue-rotate(353deg) brightness(89%) contrast(91%);
+  }
   .poseart img+img{margin-top:18px;}
   .posecredit{
     margin:6px auto 0;max-width:340px;font-family:var(--mono);font-size:8px;line-height:1.4;
@@ -439,7 +442,7 @@
 
 <script>
 /* ================= config ================= */
-const APP_VERSION='v5';
+const APP_VERSION='v6';
 const KEY   = 'spine:v1';
 const HIDX  = 'spine:hist:index';
 const HSHARD= y => `spine:hist:${y}`;
@@ -470,22 +473,22 @@ const PLAN=[
    note:'<b>1 · Prone press-up 2 × 8</b> — นอนคว่ำ ดันตัวขึ้นด้วยแขน <b>สะโพกติดพื้นตลอด</b> ค้างบนสุด 3 วินาที<br><b>2 · Thoracic extension over roller</b> — วาง foam roller <b>ขวางลำตัว</b> ที่กลางหลัง แอ่นพาดลงไป ทำ 3 ตำแหน่ง ไล่จากล่างขึ้นบนของ T-spine ตำแหน่งละ 5 ลมหายใจ',
    mistake:'ยืดค้าง hamstring ก่อนเวท (ลดแรงได้จริงในชั่วโมงถัดมา) · วาง roller ต่ำจนไปงัดที่เอวแทน T-spine · press-up แล้วสะโพกลอยตาม กลายเป็นท่าโยคะแทนที่จะเป็น lumbar extension'},
 
-  {id:'rdl',name:'Deep RDL',dose:'3 × 6–8 · tempo 4-3-1-0 · rest 2:30',art:'index_v5_assets/rdl-lordosis-vs-flatback-v1.svg',
+  {id:'rdl',name:'Deep RDL',dose:'3 × 6–8 · tempo 4-3-1-0 · rest 2:30',art:'index_v6_assets/rdl-lordosis-vs-flatback-v1.svg',
    target:'<b>ท่าหลักของทั้งโปรแกรม</b> ที่เหลือคือส่วนเสริม · งานคือสอนให้ pelvis หมุนไปหน้าแล้ว<b>ค้างไว้ใต้แรง</b> พร้อมกับโหลด hamstring ที่ความยาวมากที่สุด — ตรงนี้แหละที่ได้ fascicle length จริง ไม่ใช่แค่ stretch tolerance แบบยืดค้าง · eccentric ยาว + pause ที่ long length คือส่วนที่ทำงาน ไม่ใช่จำนวนกิโล',
    note:'<b>Setup</b> — เท้ากว้างเท่าสะโพก งอเข่าเล็กน้อยแล้ว<b>ค้างมุมนั้นไว้ตลอด</b> ห้ามงอเพิ่มตอนลง · วางไม้/PVC พาดหลัง เช็ก 2 จุด: sacrum กับ T-spine ต้องแตะไม้<br><b>ข้อยกเว้นสำคัญ</b> — เคสนี้<b>ห้ามใช้ cue "หลังแนบไม้" แบบมาตรฐาน</b> เพราะจะพากลับไปหา flat back อีก ให้ตั้งใจดัน lordosis เข้าไปในช่องว่างใต้ไม้แทน<br><b>จังหวะ 4-3-1-0</b> — ตั้ง lordosis ให้ชัดก่อนออกตัว → ดันสะโพกไปหลัง ลง <b>4 วินาที</b> (นับจริง) → ค้างจุดต่ำสุด <b>3 วินาที</b> ตรงนี้คือหัวใจ ไม่ใช่แตะแล้วเด้ง → ขึ้น 1 วินาที → ไม่หยุดบน ต่อ rep ถัดไปเลยเพื่อให้ hamstring อยู่ใต้ tension ตลอดเซต<br>'+CEILING+'<br><b>Load</b> — สัปดาห์ 1–2 บาร์เปล่าหรือดัมเบล 2×5 kg · RPE 6–7 เหลือ 3–4 reps in reserve · <b>เพิ่ม depth ก่อน แล้วค่อยเพิ่มน้ำหนัก</b> — เพิ่มโหลดตอน depth ยังไม่นิ่งคือการสอนร่างกายให้ flex ใต้แรง · ทำ 3×8 ที่ depth เดิมได้ครบ 2 สัปดาห์ติดค่อยเพิ่ม 2.5 kg · เพดานที่ต้องการ ~50–60% ของน้ำหนักตัว เกินกว่านั้นไม่จำเป็น<br><b>ถ่ายวิดีโอด้านข้างทุก 2 สัปดาห์</b> ตาตัวเองเชื่อไม่ได้ในท่านี้',
    mistake:'ลงเร็วแล้วเด้งขึ้น (ทิ้งทั้งท่าไปเลย เพราะสองอย่างที่ท่านี้ให้อยู่ในช่วงลงกับช่วงค้าง) · ลงลึกกว่า ceiling เพราะอยากให้มือแตะพื้น · งอเข่าเพิ่มระหว่างลงเพื่อโกงความลึก · เพิ่มน้ำหนักตาม progression ของท่าอื่น'},
 
-  {id:'psm',noWeight:1,name:'Psoas march (banded)',dose:'3 × 8 /ข้าง · rest 60s',
+  {id:'psm',noWeight:1,name:'Psoas march (banded)',dose:'3 × 8 /ข้าง · rest 60s',art:['index_v6_assets/wg-psoas-march-start.svg','index_v6_assets/wg-psoas-march-extend.svg'],
    target:'psoas เกาะที่<b>ตัวกระดูกสันหลังเอวโดยตรง</b> จึงเป็นตัวช่วยสร้าง lordosis ไม่ใช่แค่ hip flexor · ใน flat back มัดนี้มักจะ<b>อ่อน ไม่ใช่ตึง</b> ซึ่งเป็นจุดที่โปรแกรมทั่วไปพลาดบ่อยที่สุด แล้วสั่งให้ไปยืดมันเพิ่ม',
    note:'นอนหงาย สะโพกงอ 90° ทั้งสองข้าง คล้องแบนด์ที่ฝ่าเท้า · <b>ตั้ง lordosis ไว้ก่อนเริ่ม</b> · เหยียดขาข้างหนึ่งออกช้าๆ 3 วินาที <b>โดยเอวห้ามแบนลงติดพื้น</b> → ดึงกลับ ค้างที่ตำแหน่งงอสุด 3 วินาที<br><b>เซตจบเมื่อเอวเริ่มแบน ไม่ใช่เมื่อครบ rep</b> — จำนวนครั้งเป็นเพดาน ไม่ใช่เป้า',
    mistake:'ปล่อยเอวแบนลงพื้นตอนเหยียดขา (เท่ากับฝึก posterior tilt ซ้ำ) · เหยียดขาเร็วจนใช้แรงเหวี่ยง · ใช้แบนด์แน่นเกินจนคุมเอวไม่ไหว'},
 
-  {id:'bex',name:'45° Back extension',dose:'3 × 12 · tempo 2-2-1-0 · rest 90s',art:'index_v5_assets/back-extension-neutral-vs-hyperextend-v1.svg',
+  {id:'bex',name:'45° Back extension',dose:'3 × 12 · tempo 2-2-1-0 · rest 90s',art:'index_v6_assets/back-extension-neutral-vs-hyperextend-v1.svg',
    target:'โหลด lumbar erector กับ multifidus <b>เข้าไปในช่วงที่ขาดหายไป</b>โดยตรง · เป็นท่าเดียวในโปรแกรมที่ฝึก extension ต้านแรงโน้มถ่วงจริง ไม่ใช่แค่หา position',
    note:'ตั้งเบาะให้ขอบอยู่ใต้ ASIS พอดี · ลง 2 วินาที ขึ้นจนลำตัวเป็นเส้นตรงกับขา <b>ค้างบน 2 วินาที</b> · <b>หยุดที่ neutral บวกอีกนิดเดียว ห้าม hyperextend</b> — เป้าคือคืน range ที่หายไป ไม่ใช่แลกไปเป็นปัญหาอีกด้าน · ไร้น้ำหนักก่อน แล้วค่อยกอดแผ่นน้ำหนักที่อก · ช่องน้ำหนัก = แผ่นที่กอด',
    mistake:'เหวี่ยงขึ้นแล้วแอ่นสุดแรง · เริ่มด้วยแผ่นน้ำหนักตั้งแต่สัปดาห์แรก · ปล่อยหลังกลมตอนลง (ต้องคุม lordosis ตลอดช่วงเหมือน RDL)'},
 
-  {id:'row',name:'1-arm DB row',dose:'3 × 10 /ข้าง · rest 60s',
+  {id:'row',name:'1-arm DB row',dose:'3 × 10 /ข้าง · rest 60s',art:['index_v6_assets/wg-one-arm-row-start.svg','index_v6_assets/wg-one-arm-row-finish.svg'],
    target:'ส่วนที่ตอบไหล่ห่อ — แต่อยู่ท้ายรายการโดยตั้งใจ เพราะ<b>ไหล่ห่อในเคสนี้เป็นปลายทาง ไม่ใช่ต้นทาง</b> · ประโยชน์จริงของท่านี้อีกอย่างคือได้ฝึกคุม lordosis ในท่าก้มค้างนานๆ ซึ่งคือท่าที่เธออยู่ทั้งวันอยู่แล้ว',
    note:'เข่าและมือข้างหนึ่งวางบนม้านั่ง หลัง<b>ขนานพื้นและแอ่นค้าง</b> ไม่ใช่หลังกลม · ดึงศอกไปหลังลำตัว บีบสะบัก 1 วินาที · ลงช้ากว่าขึ้น · ช่องน้ำหนัก = ต่อข้าง',
    mistake:'บิดลำตัวช่วยดึง · หลังกลมตอนตั้งท่า (ถ้าคุมไม่ได้ให้ลดน้ำหนัก ท่านี้มีค่าตรงตำแหน่งหลังพอๆ กับตรงที่ดึงได้) · กระตุกด้วยแขนแทนสะบัก'},
@@ -497,7 +500,7 @@ const PLAN=[
  ]},
 
  {dow:'FRI',title:'Mobility & long length',kind:'mobility',items:[
-  {id:'cc',ss:'A',noWeight:1,name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v5_assets/cat-cow-segmental-v1.svg',
+  {id:'cc',ss:'A',noWeight:1,name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v6_assets/cat-cow-segmental-v1.svg',
    target:'ตัวหลักที่ตอบ "หลังขยับไม่ค่อยได้" · <b>คำสำคัญคือ segmental</b> — การโค้งหลังเร็วๆ ทั้งแผงคือการเคลื่อนเฉพาะปล้องที่ขยับง่ายอยู่แล้ว ปล้องที่ติดก็ยังติดเหมือนเดิม แถมปล้องที่ขยับง่ายยิ่งขยับเกิน',
    note:'คลาน 4 ขา · ไล่<b>ทีละปล้อง</b> เริ่มจาก sacrum ม้วนขึ้นไปหาคอ แล้วย้อนกลับ · ช้ามาก <b>4 วินาทีต่อทิศทาง</b> · นึกภาพว่ากำลังงัดปล้องทีละอันให้แยกจากกัน ไม่ใช่โค้งหลังเป็นสะพาน',
    mistake:'ทำเร็วเป็นการวอร์ม · เคลื่อนทั้งแผงพร้อมกัน · ใช้แรงไหล่ดันพื้นแทนการเคลื่อนหลัง'},
@@ -525,27 +528,27 @@ const PLAN=[
    note:'คุกเข่าข้างหนึ่ง ขาหน้าเหยียดตรงส้นเท้าติดพื้นปลายเท้ากระดกขึ้น · <b>ตั้ง lordosis ก่อน</b> แล้วพับที่สะโพกเอื้อมไปหาปลายเท้า · <b>หยุดทันทีที่หลังเริ่มกลม</b> ค้าง 2 วินาทีแล้วกลับ<br>ถ้ารู้สึกตึงที่หลังมากกว่าที่ต้นขาหลัง แปลว่าเลย ceiling ไปแล้ว',
    mistake:'เอื้อมให้ถึงปลายเท้าโดยยอมให้หลังกลม (ก็คือ seated forward fold ในท่าใหม่) · งอเข่าขาหน้า · เด้งเป็นจังหวะ'},
 
-  {id:'yt',name:'Prone Y + T',dose:'2 × 10 แต่ละแบบ · ค้าง 2 วิ',
+  {id:'yt',name:'Prone Y + T',dose:'2 × 10 แต่ละแบบ · ค้าง 2 วิ',art:['index_v6_assets/wg-prone-y-raise.svg','index_v6_assets/wg-prone-t-raise.svg'],
    target:'lower trapezius กับ posterior delt · <b>ยกอกพ้นพื้นด้วย</b> ทำให้ท่านี้เป็น thoracic extension ไปในตัว ไม่ใช่แค่งานสะบัก',
    note:'นอนคว่ำ หน้าผากลอยเล็กน้อย · <b>Y</b> แขนเหยียดทำมุมประมาณ 45° หัวแม่มือชี้ขึ้น · <b>T</b> แขนกางออกข้างลำตัว · ยกแขนพร้อมกับยกอกพ้นพื้น ค้าง 2 วินาที · ดัมเบล 1–2 kg พอ · ช่องน้ำหนัก = ต่อข้าง',
    mistake:'ยกด้วยการแอ่นเอวแทนการยกอก · ใช้ดัมเบลหนักจนไหล่ยกขึ้นหาหู · ยกเร็วไม่ค้าง'},
 
-  {id:'fp',name:'Face pull',dose:'3 × 15 · tempo 2-1-2-0',art:'index_v5_assets/face-pull-v2.svg',
+  {id:'fp',name:'Face pull',dose:'3 × 15 · tempo 2-1-2-0',art:'index_v6_assets/face-pull-v2.svg',
    target:'ปิดท้ายด้วยงานสะบักที่คุ้มที่สุดต่อเซต · เป็นท่าที่<b>ทำถี่ได้โดยไม่มีต้นทุน</b> ต่างจากท่าดึงหนัก',
    note:'เชือกสูงระดับหน้า · ดึงเข้าหาหน้าผาก <b>แยกมือออกจากกันตอนจบ ข้อศอกสูงกว่าไหล่</b> · บีบค้าง 1 วินาที · ปล่อยกลับช้า 2 วินาที · น้ำหนักเบาพอที่จะไม่ต้องเอนตัวถ่วง',
    mistake:'หนักจนต้องเอนหลังถ่วงน้ำหนัก · ดึงเข้าหาอกแทนหน้าผาก · ศอกตกต่ำกว่าไหล่'}
  ]},
 
  {dow:'SUN',title:'Legs',sub:'· optional',kind:'optional',items:[
-  {id:'gsq',name:'Goblet squat',dose:'3 × 8',
+  {id:'gsq',name:'Goblet squat',dose:'3 × 8',art:['index_v6_assets/wg-goblet-squat-start.svg','index_v6_assets/wg-goblet-squat-bottom.svg'],
    target:'ขาโดยรวม · <b>ไม่มีบทบาทต่อ pattern ที่กำลังแก้</b> อยู่ในนี้เพราะการฝึกขาไม่ควรหยุดตลอด 12 สัปดาห์ ไม่ใช่เพราะมันช่วยเรื่องหลัง',
    note:'ถือดัมเบลไว้ที่อก ย่อลงระหว่างเข่า · ลงลึกเท่าที่<b>เชิงกรานยังไม่ม้วนเก็บ</b> (butt wink) — จุดนั้นคือ ceiling เดียวกับที่ใช้กับ RDL ด้วยเหตุผลเดียวกัน · ยืนบนแผ่นรองส้นได้ถ้าข้อเท้าตึง',
    mistake:'ลงลึกจน butt wink ทุกครั้ง · หนักจนหลังกลม'},
-  {id:'spl',name:'Split squat',dose:'3 × 10 /ข้าง',
+  {id:'spl',name:'Split squat',dose:'3 × 10 /ข้าง',art:['index_v6_assets/wg-split-squat-start.svg','index_v6_assets/wg-split-squat-bottom.svg'],
    target:'ขาข้างเดียว + ยืดสะโพกหน้าข้างหลังไปในตัว',
    note:'ก้าวยาว ย่อลงตรงๆ เข่าหลังเกือบแตะพื้น · <b>บีบก้นข้างหลังตอนขึ้น</b> จะได้ hip flexor stretch ฟรีในท่าที่ active · ช่องน้ำหนัก = ต่อข้าง',
    mistake:'โน้มตัวไปหน้ามาก · ก้าวสั้นจนเข่าหน้าเลยปลายเท้ามาก'},
-  {id:'cal',name:'Calf raise',dose:'3 × 15',
+  {id:'cal',name:'Calf raise',dose:'3 × 15',art:['index_v6_assets/wg-calf-raise-bottom.svg','index_v6_assets/wg-calf-raise-top.svg'],
    target:'น่อง · gastrocnemius ข้ามข้อเข่า จึงมีส่วนในความตึงด้านหลังขาที่คนมักโทษ hamstring อย่างเดียว',
    note:'ยืนบนขอบขั้น ปล่อยส้นลงต่ำสุดค้าง 2 วินาที แล้วเขย่งขึ้นสุด',
    mistake:'เด้งเป็นจังหวะ · ไม่ปล่อยส้นลงสุด'}
@@ -564,7 +567,7 @@ const DAILY=[
   target:'เอา lordosis ที่หาเจอตอนนอนมาใช้ในท่าที่รับน้ำหนัก · เป็นสะพานระหว่างท่านอนกับท่ายืน',
   note:'คลาน 4 ขา <b>ตั้ง lordosis ให้ชัดก่อน</b> แล้วค่อยๆ ถอยก้นไปหาส้นเท้า · <b>หยุดทันทีที่เอวเริ่มโค้งกลับ</b> — จุดนั้นคือ ROM จริงของวันนี้ ค้าง 3 วินาทีแล้วกลับ<br>ระยะที่ถอยได้จะเพิ่มขึ้นเองเมื่อ hamstring ยาวขึ้น ไม่ต้องฝืน',
   mistake:'ถอยจนก้นแตะส้นเท้าโดยยอมให้หลังกลม · ลืมตั้ง lordosis ก่อนเริ่ม · ทำเร็ว'},
- {id:'d3',name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v5_assets/cat-cow-segmental-v1.svg',
+ {id:'d3',name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v6_assets/cat-cow-segmental-v1.svg',
   target:'ตัวที่ตอบ mobility โดยตรง · ทำซ้ำจากวันศุกร์เพราะ<b>mobility ตอบสนองต่อความถี่ ไม่ใช่ปริมาณต่อครั้ง</b>',
   note:'ไล่ทีละปล้อง ช้ามาก 4 วินาทีต่อทิศทาง · รายละเอียดเต็มอยู่ในการ์ดวันศุกร์',
   mistake:'ทำเร็ว · เคลื่อนทั้งแผงพร้อมกัน'},
