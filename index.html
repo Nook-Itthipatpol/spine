@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  Spine Week — v1
+  ============================================================================
+  Lumbar hypolordosis + low spinal mobility. AS and Scheuermann's ruled out.
+
+  WORKING RULES (ask Claude to follow these on every edit)
+  ---------------------------------------------------------------------------
+  1. VERSION EVERY FILE. Never save over the previous one. The working copy is
+     `spine vNN.html`; NN goes up by one per round of changes, and the old file
+     stays on disk so a regression can be bisected against it.
+  2. The deployed file is a COPY named `index.html`. It is byte-identical to
+     `spine vNN.html` — index.html is never edited directly, or the two
+     silently drift.
+  3. Write these rules into this comment in every version.
+  4. Say what changed and why. A fix with no note becomes a mystery on the next
+     pass.
+
+  v1 — first cut
+  ---------------------------------------------------------------------------
+  Design lifted wholesale from training v64: same tokens, same card model, same
+  item row (box · name · dose · weight · ⓘ), same weekly rollover into year
+  shards. What is different is the CONTENT MODEL, and it is different for one
+  reason: this program is corrective, not progressive.
+
+  A  The week tab holds three sessions, not seven. Two gym days and one optional
+     leg day. The work that matters most is not on this tab at all — it is on
+     Daily, because a motor-control pattern is trained by frequency, and
+     10 minutes × 7 beats 45 minutes × 2 for that specific job.
+  B  No deload toggle. There is nothing to deload from — the loads here are RPE
+     6–7 by design and stay there. The toggle that replaces it is `slump`, which
+     is a CLINICAL branch: a positive slump test changes what she should do to
+     the hamstring, so it changes the plan rather than just the volume.
+  C  The Tests tab exists because this program has an endpoint that is measured,
+     not felt. Weight on the bar is not the outcome here; SLR angle and the RDL
+     depth at which lordosis survives are.
+  D  Phase is derived from a start date, not stored as a state you flip. Weeks
+     1–4 are motor control, 5–12 are loading, 13+ is maintenance, and the banner
+     says which one today is so the weight fields get read in context.
+  ============================================================================
+-->
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spine Week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap" rel="stylesheet"></noscript>
+<style>
+  :root{
+    /* "Midnight Dial", carried over unchanged from training v64. Numbers are the
+       content, so they get the brass; everything else stays quiet. */
+    --paper:#0A0C0F;
+    --fill:linear-gradient(#13171D 0%,#0E1114 92%,#0B0D10 100%);
+    --fill-done:linear-gradient(#0E1114,#0A0C0F);
+    --edge:#FFFFFF3B;
+    --edge2:#FFFFFF1C;
+    --hair:.5;
+    --ink:#CCD3D9;
+    --muted:#8A959C;
+    --dim:#616D75;
+    --line:#FFFFFF12;
+    --brass:#D6B27C;
+    --brass2:#8E7549;
+    --r:18px;
+    --rc:10px;
+    --s1:19px;
+    --s2:15px;
+    --s3:13px;
+    --s4:11px;
+    --sans:-apple-system,BlinkMacSystemFont,system-ui,"IBM Plex Sans Thai Looped",sans-serif;
+    --serif:"Newsreader",Georgia,"Times New Roman",serif;
+    --tag:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --mono:var(--sans);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{background:var(--paper);}
+  body{
+    margin:0 auto;max-width:560px;
+    padding:18px 16px calc(48px + env(safe-area-inset-bottom));
+    background:transparent;
+    color:var(--ink);
+    font-family:var(--sans);font-size:16px;line-height:1.5;letter-spacing:-.01em;
+    -webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(88% 34% at 50% -6%,#2A3540 0%,rgba(42,53,64,0) 68%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:9;pointer-events:none;
+    opacity:.07;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.5'/></svg>");
+  }
+  .brand{position:relative;display:flex;align-items:center;justify-content:center;
+    min-height:30px;padding:0 0 14px;}
+  .bname{
+    font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--brass);opacity:.85;padding-left:4px;
+  }
+  .eyebrow{font-family:var(--mono);font-size:var(--s4);letter-spacing:.16em;text-transform:uppercase;
+    color:var(--dim);font-weight:500;}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;margin:2px 2px 20px;border-bottom:1px solid var(--line);}
+  .tab{
+    flex:1;padding:0 0 12px;border:0;background:transparent;font:inherit;
+    font-size:var(--s3);font-weight:500;letter-spacing:.02em;
+    color:var(--dim);cursor:pointer;transition:color .18s;
+  }
+  .tl{position:relative;display:inline-block;}
+  .tl::after{
+    content:"";position:absolute;left:-6px;right:-6px;bottom:-13px;height:1.5px;border-radius:999px;
+    background:linear-gradient(90deg,var(--brass2),var(--brass));
+    transform:scaleX(0);transition:transform .22s cubic-bezier(.4,0,.2,1);
+  }
+  .tab[aria-selected="true"]{color:var(--ink);font-weight:600;}
+  .tab[aria-selected="true"] .tl::after{transform:scaleX(1);}
+  .pane{display:none;}
+  .pane.on{display:block;}
+
+  .weekbar{display:flex;align-items:center;gap:8px;padding:0 2px 12px;}
+  .weekno{font-family:var(--mono);font-size:var(--s4);color:var(--dim);flex:1;letter-spacing:.04em;}
+  .weekno b{color:var(--brass);font-weight:600;}
+
+  /* ---------- day card ---------- */
+  .day{
+    position:relative;overflow:hidden;
+    background:var(--fill);border:1px solid var(--line);
+    border-top:0;border-bottom:0;border-radius:var(--r);
+    margin-bottom:8px;transition:background .18s;
+  }
+  .day::after{content:"";position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none;
+    transform:scaleY(var(--hair));transform-origin:top;
+    background:linear-gradient(90deg,transparent 8%,var(--edge) 24%,var(--edge) 76%,transparent 92%);}
+  .day::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    transform:scaleY(var(--hair));transform-origin:bottom;z-index:2;pointer-events:none;
+    background:linear-gradient(90deg,transparent 12%,var(--edge2) 29%,var(--edge2) 71%,transparent 88%);}
+  .day.done::before{opacity:.4;}
+  .day.done{background:var(--fill-done);border-color:#FFFFFF08;border-top:0;border-bottom:0;}
+  .day.done::after{opacity:.4;}
+  .day.done .title{color:var(--dim);}
+  .day.open{box-shadow:0 18px 40px -22px #000;}
+  .day.today .title::after{
+    content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+    background:var(--accent);vertical-align:middle;margin-left:7px;
+    box-shadow:0 0 8px var(--accent);
+  }
+  .head{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    width:100%;min-height:66px;padding:10px 46px;
+    background:none;border:0;font:inherit;color:inherit;cursor:pointer;
+    touch-action:manipulation;
+  }
+  .stk{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;
+    transform:translateY(-6.5px);}
+  .dow{font-family:var(--tag);font-size:10px;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--dim);font-weight:500;line-height:1.3;}
+  .dow .sub{display:inline;font:inherit;letter-spacing:inherit;text-transform:inherit;
+    color:inherit;white-space:nowrap;}
+  .title{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-.005em;
+    line-height:1.2;text-align:center;}
+  .chev{position:absolute;top:50%;right:16px;transform:translateY(-50%);
+    width:16px;height:16px;color:var(--muted);transition:transform .2s;}
+  .chev svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:3;}
+  .day.open .chev{transform:translateY(-50%) rotate(180deg);}
+  .prog{display:block;height:2px;background:none;}
+  .prog i{display:block;height:100%;width:0%;border-radius:0 999px 999px 0;
+    background:linear-gradient(90deg,var(--brass2),var(--brass));
+    transition:width .25s cubic-bezier(.4,0,.2,1);}
+  .body{display:none;padding:2px 0 14px;}
+  .day.open .body{display:block;}
+
+  /* ---------- item ---------- */
+  .grp{padding:0 18px;}
+  .sslab{
+    font-size:var(--s4);letter-spacing:.2em;text-transform:uppercase;font-weight:500;
+    color:var(--dim);margin:0;padding:14px 0 3px;
+  }
+  .sslab:empty{display:none;}
+  .grphead{display:flex;align-items:center;gap:10px;padding:14px 0 3px;}
+  .grphead .sslab{padding:0;}
+  .grphead+.item{border-top:0;}
+  .item.nobox{padding-left:34px;}
+  .grp.now{position:relative;background:var(--tint);margin:6px 0;padding-bottom:6px;}
+  .grp.now::before{content:"";position:absolute;left:0;top:0;bottom:0;width:1.5px;
+    background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent),black 55%));}
+  .grp.now .sslab{color:var(--accent);opacity:.7;}
+  .day.done .grp.now{background:none;box-shadow:none;}
+  .item{display:flex;align-items:center;gap:10px;padding:10px 0;min-height:52px;}
+  .item+.item{border-top:1px solid #FFFFFF0A;}
+  .sslab+.item{border-top:0;}
+  .item.on .name{color:var(--muted);}
+  .box{
+    width:24px;height:24px;flex:none;padding:0;touch-action:manipulation;
+    border:1px solid #FFFFFF24;border-radius:var(--rc);background:transparent;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s,border-color .15s;
+  }
+  .box svg{width:13px;height:13px;fill:none;stroke:#0A0C0D;stroke-width:3.2;opacity:0;transition:opacity .15s;}
+  .box.on{background:var(--accent);border-color:var(--accent);}
+  .box.on svg{opacity:1;}
+  .txt{flex:1;min-width:0;}
+  .name{font-size:var(--s2);font-weight:500;letter-spacing:-.008em;line-height:1.4;}
+  .dose{font-size:var(--s4);color:var(--dim);margin-left:7px;white-space:nowrap;}
+  .dosefull{font-size:var(--s4);color:var(--muted);margin:0 0 10px;letter-spacing:.01em;}
+  .idet{
+    width:22px;height:22px;flex:none;padding:0;border-radius:50%;margin-left:auto;
+    border:1px solid #FFFFFF1A;background:transparent;color:var(--dim);
+    font:inherit;font-size:11px;font-style:italic;line-height:1;cursor:pointer;touch-action:manipulation;
+    display:flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s;
+  }
+  .item.det .idet{color:var(--accent);border-color:var(--accent);opacity:.9;}
+  .drop{display:none;padding:0 8px 12px 34px;}
+  .item.det + .drop{display:block;}
+  .tagx{
+    display:inline-block;margin-left:6px;padding:1px 6px;border-radius:5px;
+    background:var(--soft);color:var(--accent);
+    font-size:var(--s4);font-weight:700;vertical-align:1px;
+  }
+
+  /* weight */
+  .wtwrap{display:flex;align-items:baseline;gap:4px;flex:none;align-self:center;margin-left:auto;}
+  .wtwrap+.idet{margin-left:0;}
+  input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .wtin{
+    width:52px;height:32px;padding:0 2px;text-align:center;
+    border:1px solid #FFFFFF14;border-radius:var(--rc);background:#12161B;
+    font:inherit;font-family:var(--mono);font-size:15px;color:var(--brass);
+    outline:none;letter-spacing:-.01em;
+    box-shadow:0 1px 2px #00000080 inset;
+    transition:border-color .15s;
+  }
+  .wtin::placeholder{color:#4E5B60;}
+  .wtin:focus{border-color:var(--brass2);}
+  .unit{font-family:var(--mono);font-size:var(--s4);color:var(--dim);}
+
+  /* disclosures */
+  details{margin:2px 0 0 0;}
+  summary{
+    list-style:none;display:inline-block;cursor:pointer;padding:1px 0 3px;
+    font-size:var(--s4);font-weight:400;color:var(--dim);letter-spacing:0;
+    border-bottom:1px dotted #FFFFFF24;line-height:1.4;transition:color .15s;
+  }
+  summary::-webkit-details-marker{display:none;}
+  details[open] summary{color:var(--muted);}
+  .note{
+    font-size:var(--s2);line-height:1.65;color:#AEB8BF;
+    border-left:1px solid var(--line);padding:2px 0 2px 13px;margin:2px 0 4px;
+  }
+  .note b{font-weight:600;color:var(--ink);}
+  .note .tl,.note .tn{margin:0 0 9px;}
+  .note .tl:last-child,.note .tn:last-child{margin-bottom:0;}
+  .note .lab{
+    display:block;font-family:var(--mono);font-size:var(--s4);font-weight:500;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--brass2);margin-bottom:4px;
+  }
+  .poseart{
+    margin:16px 0 2px;padding:0;text-align:center;
+  }
+  .poseart img{
+    display:block;width:min(100%,340px);height:auto;margin:0 auto;
+    filter:invert(86%) sepia(8%) saturate(430%) hue-rotate(160deg) brightness(102%) contrast(92%);
+  }
+  .poseart img+img{margin-top:18px;}
+  .posecredit{
+    margin:6px auto 0;max-width:340px;font-family:var(--mono);font-size:8px;line-height:1.4;
+    color:var(--dim);text-align:center;
+  }
+  .histbody{border-left:1px solid var(--line);padding:4px 0 2px 13px;margin:2px 0 4px;}
+  .histsplit{border-top:1px solid var(--line);margin:12px 0 10px;}
+  .histbody .eyebrow{display:block;margin-bottom:7px;}
+  .histcap{font-size:var(--s3);color:var(--dim);margin:0 0 8px;line-height:1.45;}
+  table.h{border-collapse:collapse;width:100%;max-width:280px;}
+  table.h td{font-family:var(--mono);font-size:var(--s3);padding:4px 0;}
+  td.w{color:var(--dim);width:64px;}
+  td.kg{color:var(--ink);font-weight:400;}
+  td.d{text-align:right;color:var(--dim);}
+  td.d.up{color:#7FCBA9;}
+  td.d.dn{color:#E0899A;}
+  [hidden]{display:none!important;}
+
+  /* ---------- plain card (daily · tests · why) ---------- */
+  .hab{
+    background:var(--fill);border:1px solid var(--line);border-top:0;border-bottom:0;
+    border-radius:var(--r);
+    padding:16px;margin-bottom:8px;position:relative;overflow:hidden;
+  }
+  .hab::after{
+    content:"";position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none;
+    transform:scaleY(var(--hair));transform-origin:top;
+    background:linear-gradient(90deg,transparent 8%,var(--edge) 24%,var(--edge) 76%,transparent 92%);}
+  .hab::before{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    transform:scaleY(var(--hair));transform-origin:bottom;z-index:2;pointer-events:none;
+    background:linear-gradient(90deg,transparent 12%,var(--edge2) 29%,var(--edge2) 71%,transparent 88%);}
+  .habtop{display:flex;align-items:baseline;gap:10px;}
+  .habname{font-size:var(--s1);font-weight:600;letter-spacing:-.015em;flex:1;line-height:1.25;}
+  .habdose{font-family:var(--mono);font-size:var(--s4);color:var(--dim);flex:none;white-space:nowrap;}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px;}
+  .gcell{display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .gdow{font-family:var(--mono);font-size:var(--s4);color:var(--dim);font-weight:500;}
+  .gbox{
+    width:100%;height:38px;padding:0;
+    border:1px solid #FFFFFF1A;border-radius:var(--rc);background:#FFFFFF05;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s,border-color .15s;
+  }
+  .gbox svg{width:13px;height:13px;fill:none;stroke:#0A0C0D;stroke-width:3.2;opacity:0;transition:opacity .15s;}
+  .gbox.on{background:var(--brass);border-color:var(--brass);}
+  .gbox.on svg{opacity:1;}
+  .gcell.today .gdow{color:var(--ink);}
+  .gcell.today .gbox{border-color:var(--muted);}
+  .gcell.future .gbox{opacity:.35;}
+  .density{font-family:var(--mono);font-size:var(--s4);color:var(--dim);letter-spacing:.02em;
+    white-space:nowrap;flex:none;}
+  .hab details{margin:12px 0 0;}
+
+  /* ---------- prose blocks ---------- */
+  .prbox{
+    position:relative;overflow:hidden;
+    background:var(--fill);border:1px solid var(--line);border-top:0;border-bottom:0;
+    border-radius:var(--r);padding:16px;margin-bottom:8px;
+  }
+  .prbox::after{
+    content:"";position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none;
+    transform:scaleY(var(--hair));transform-origin:top;
+    background:linear-gradient(90deg,transparent 8%,var(--edge) 24%,var(--edge) 76%,transparent 92%);}
+  .prh{
+    display:block;font-family:var(--mono);font-size:var(--s4);font-weight:500;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--brass2);margin-bottom:8px;
+  }
+  .prt{margin:0 0 11px;font-size:var(--s2);line-height:1.7;color:#AEB8BF;}
+  .prt:last-child{margin-bottom:0;}
+  .prt b{font-weight:600;color:var(--ink);}
+  .prt em{font-style:normal;color:var(--brass);font-weight:600;}
+  .lead{font-family:var(--serif);font-size:20px;line-height:1.45;color:var(--ink);
+    font-weight:600;letter-spacing:-.01em;margin:0 0 12px;}
+
+  table.t{width:100%;border-collapse:collapse;margin:4px 0 2px;}
+  table.t td{font-size:var(--s3);line-height:1.55;padding:8px 0;color:#AEB8BF;
+    border-top:1px solid var(--line);vertical-align:top;}
+  table.t tr:first-child td{border-top:0;}
+  table.t td.k{color:var(--ink);font-weight:600;padding-right:12px;width:38%;}
+  table.t td.k.no{color:#C98A97;}
+  table.t td.k.yes{color:#8FC9AE;}
+  table.t b{color:var(--ink);font-weight:600;}
+
+  .fig{margin:6px 0 2px;}
+  .fig svg{display:block;width:100%;height:auto;}
+  .figcap{font-family:var(--mono);font-size:var(--s4);color:var(--dim);line-height:1.6;
+    margin:8px 0 0;text-align:center;}
+
+  /* ---------- tests ---------- */
+  .tsrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);}
+  .tsrow:first-of-type{border-top:0;}
+  .tslab{flex:1;min-width:0;font-size:var(--s2);font-weight:500;}
+  .tssub{display:block;font-size:var(--s4);color:var(--dim);font-weight:400;line-height:1.4;}
+  .tsin{width:58px;}
+  .pair{display:flex;gap:6px;flex:none;}
+  .tgl{
+    padding:6px 13px;border:1px solid var(--line);border-radius:999px;background:transparent;
+    font:inherit;font-size:var(--s3);font-weight:600;color:var(--muted);cursor:pointer;
+    transition:background .15s,color .15s,border-color .15s;
+  }
+  .tgl[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:#0A0C0D;}
+  .tgl.warn[aria-pressed="true"]{background:#C4677C;border-color:#C4677C;}
+  .iorow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .btn{
+    padding:9px 14px;border:1px solid var(--brass);border-radius:999px;background:var(--brass);
+    color:#0A0C0D;font:inherit;font-size:var(--s3);font-weight:600;cursor:pointer;
+  }
+  .btn.ghost{background:transparent;color:var(--ink);border-color:#FFFFFF24;}
+  .iomsg{font-size:var(--s3);color:var(--muted);margin-top:10px;line-height:1.55;}
+  .iomsg b{color:var(--ink);font-weight:600;}
+  .flag{border-left:2px solid #C4677C;padding-left:12px;}
+  .flag .prh{color:#C4677C;}
+
+  /* ---------- footer / transfer ---------- */
+  footer{display:flex;justify-content:flex-end;align-items:flex-start;gap:16px;
+    flex-wrap:wrap;margin-top:16px;padding:0 2px;}
+  .link{background:none;border:0;padding:8px 2px;font:inherit;font-size:var(--s4);color:#586369;
+    cursor:pointer;text-decoration:underline;text-decoration-color:#FFFFFF1F;text-underline-offset:3px;
+    transition:color .15s;}
+  .link[aria-expanded="true"],.link[aria-pressed="true"]{color:var(--brass);text-decoration-color:var(--brass2);}
+  .ver{flex-basis:100%;order:9;font-size:var(--s4);font-weight:400;color:#586369;}
+  .io{
+    background:var(--fill);border:1px solid var(--line);border-top:0;border-bottom:0;
+    border-radius:var(--r);padding:14px 16px;margin-top:12px;
+  }
+  .iohead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .iota{
+    width:100%;height:120px;resize:vertical;box-sizing:border-box;
+    border:1px solid var(--line);border-radius:var(--rc);background:var(--paper);
+    padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;line-height:1.4;color:var(--muted);
+  }
+  .iota:focus{outline:2px solid var(--brass2);outline-offset:1px;}
+
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+
+<header class="brand"><span class="bname">Spine Week</span></header>
+<div class="tabs" role="tablist" id="tabs"></div>
+
+<section class="pane" id="pane-week" role="tabpanel" tabindex="0" aria-labelledby="tab-week">
+  <div class="weekbar"><span class="weekno" id="weekno"></span></div>
+  <div id="wkintro"></div>
+  <main id="days"></main>
+  <footer>
+    <button class="link" id="export" aria-expanded="false">export json</button>
+    <button class="link" id="import" aria-expanded="false">import json</button>
+    <span class="ver" id="ver"></span>
+  </footer>
+  <section class="io" id="io" hidden></section>
+</section>
+
+<section class="pane" id="pane-daily" role="tabpanel" tabindex="0" aria-labelledby="tab-daily">
+  <div class="weekbar"><span class="weekno" id="dailyno"></span></div>
+  <main id="habits"></main>
+</section>
+
+<section class="pane" id="pane-test" role="tabpanel" tabindex="0" aria-labelledby="tab-test">
+  <main id="tests"></main>
+</section>
+
+<section class="pane" id="pane-why" role="tabpanel" tabindex="0" aria-labelledby="tab-why">
+  <main id="why"></main>
+</section>
+
+<script>
+/* ================= config ================= */
+const APP_VERSION='v5';
+const KEY   = 'spine:v1';
+const HIDX  = 'spine:hist:index';
+const HSHARD= y => `spine:hist:${y}`;
+const DSHARD= m => `spine:daily:${m}`;   /* m = 'YYYY-MM' */
+const UITAB = 'spine:ui:tab';
+const ROLL_HOUR=4;
+
+/* Weekly sessions share one brass accent. Jade remains the daily block's accent. */
+const KIND={
+  load    :{accent:'#D6B27C',soft:'#D6B27C1A',tint:'#D6B27C0A'},
+  mobility:{accent:'#D6B27C',soft:'#D6B27C1A',tint:'#D6B27C0A'},
+  optional:{accent:'#D6B27C',soft:'#D6B27C1A',tint:'#D6B27C0A'}
+};
+
+const DOWI={MON:0,TUE:1,WED:2,THU:3,FRI:4,SAT:5,SUN:6};
+const DOW_TH=['M','T','W','T','F','S','S'];
+
+/* Repeated in three notes, so it lives once. */
+const CEILING =
+ '<b>ROM ceiling rule</b> — จุดต่ำสุดคือจุดที่<b>วินาทีถัดไปเอวจะเริ่มงอ</b> ไม่ใช่จุดที่มือแตะพื้น '+
+ 'พอเอวงอเมื่อไหร่ hamstring ก็หลุดจากงานทันที แรงย้ายไปลง lumbar disc แทน';
+
+/* ================= plan · resistance & mobility sessions ================= */
+const PLAN=[
+ {dow:'TUE',title:'Posterior chain',kind:'load',items:[
+  {id:'wa',noWeight:1,name:'Warm-up · extension prep',dose:'4 นาที · 2 ท่า',
+   target:'วอร์มวันนี้มีหน้าที่เดียวคือ<b>ปลุก extension</b> ไม่ใช่ปั๊มเลือด · ท่าหลักทั้งวันเกิดขึ้นในช่วงที่หลังต้องแอ่นค้าง ถ้าไม่เปิดช่วงนั้นก่อน เซ็ตแรกของ RDL จะกลายเป็นเซ็ตหาท่า',
+   note:'<b>1 · Prone press-up 2 × 8</b> — นอนคว่ำ ดันตัวขึ้นด้วยแขน <b>สะโพกติดพื้นตลอด</b> ค้างบนสุด 3 วินาที<br><b>2 · Thoracic extension over roller</b> — วาง foam roller <b>ขวางลำตัว</b> ที่กลางหลัง แอ่นพาดลงไป ทำ 3 ตำแหน่ง ไล่จากล่างขึ้นบนของ T-spine ตำแหน่งละ 5 ลมหายใจ',
+   mistake:'ยืดค้าง hamstring ก่อนเวท (ลดแรงได้จริงในชั่วโมงถัดมา) · วาง roller ต่ำจนไปงัดที่เอวแทน T-spine · press-up แล้วสะโพกลอยตาม กลายเป็นท่าโยคะแทนที่จะเป็น lumbar extension'},
+
+  {id:'rdl',name:'Deep RDL',dose:'3 × 6–8 · tempo 4-3-1-0 · rest 2:30',art:'index_v5_assets/rdl-lordosis-vs-flatback-v1.svg',
+   target:'<b>ท่าหลักของทั้งโปรแกรม</b> ที่เหลือคือส่วนเสริม · งานคือสอนให้ pelvis หมุนไปหน้าแล้ว<b>ค้างไว้ใต้แรง</b> พร้อมกับโหลด hamstring ที่ความยาวมากที่สุด — ตรงนี้แหละที่ได้ fascicle length จริง ไม่ใช่แค่ stretch tolerance แบบยืดค้าง · eccentric ยาว + pause ที่ long length คือส่วนที่ทำงาน ไม่ใช่จำนวนกิโล',
+   note:'<b>Setup</b> — เท้ากว้างเท่าสะโพก งอเข่าเล็กน้อยแล้ว<b>ค้างมุมนั้นไว้ตลอด</b> ห้ามงอเพิ่มตอนลง · วางไม้/PVC พาดหลัง เช็ก 2 จุด: sacrum กับ T-spine ต้องแตะไม้<br><b>ข้อยกเว้นสำคัญ</b> — เคสนี้<b>ห้ามใช้ cue "หลังแนบไม้" แบบมาตรฐาน</b> เพราะจะพากลับไปหา flat back อีก ให้ตั้งใจดัน lordosis เข้าไปในช่องว่างใต้ไม้แทน<br><b>จังหวะ 4-3-1-0</b> — ตั้ง lordosis ให้ชัดก่อนออกตัว → ดันสะโพกไปหลัง ลง <b>4 วินาที</b> (นับจริง) → ค้างจุดต่ำสุด <b>3 วินาที</b> ตรงนี้คือหัวใจ ไม่ใช่แตะแล้วเด้ง → ขึ้น 1 วินาที → ไม่หยุดบน ต่อ rep ถัดไปเลยเพื่อให้ hamstring อยู่ใต้ tension ตลอดเซต<br>'+CEILING+'<br><b>Load</b> — สัปดาห์ 1–2 บาร์เปล่าหรือดัมเบล 2×5 kg · RPE 6–7 เหลือ 3–4 reps in reserve · <b>เพิ่ม depth ก่อน แล้วค่อยเพิ่มน้ำหนัก</b> — เพิ่มโหลดตอน depth ยังไม่นิ่งคือการสอนร่างกายให้ flex ใต้แรง · ทำ 3×8 ที่ depth เดิมได้ครบ 2 สัปดาห์ติดค่อยเพิ่ม 2.5 kg · เพดานที่ต้องการ ~50–60% ของน้ำหนักตัว เกินกว่านั้นไม่จำเป็น<br><b>ถ่ายวิดีโอด้านข้างทุก 2 สัปดาห์</b> ตาตัวเองเชื่อไม่ได้ในท่านี้',
+   mistake:'ลงเร็วแล้วเด้งขึ้น (ทิ้งทั้งท่าไปเลย เพราะสองอย่างที่ท่านี้ให้อยู่ในช่วงลงกับช่วงค้าง) · ลงลึกกว่า ceiling เพราะอยากให้มือแตะพื้น · งอเข่าเพิ่มระหว่างลงเพื่อโกงความลึก · เพิ่มน้ำหนักตาม progression ของท่าอื่น'},
+
+  {id:'psm',noWeight:1,name:'Psoas march (banded)',dose:'3 × 8 /ข้าง · rest 60s',
+   target:'psoas เกาะที่<b>ตัวกระดูกสันหลังเอวโดยตรง</b> จึงเป็นตัวช่วยสร้าง lordosis ไม่ใช่แค่ hip flexor · ใน flat back มัดนี้มักจะ<b>อ่อน ไม่ใช่ตึง</b> ซึ่งเป็นจุดที่โปรแกรมทั่วไปพลาดบ่อยที่สุด แล้วสั่งให้ไปยืดมันเพิ่ม',
+   note:'นอนหงาย สะโพกงอ 90° ทั้งสองข้าง คล้องแบนด์ที่ฝ่าเท้า · <b>ตั้ง lordosis ไว้ก่อนเริ่ม</b> · เหยียดขาข้างหนึ่งออกช้าๆ 3 วินาที <b>โดยเอวห้ามแบนลงติดพื้น</b> → ดึงกลับ ค้างที่ตำแหน่งงอสุด 3 วินาที<br><b>เซตจบเมื่อเอวเริ่มแบน ไม่ใช่เมื่อครบ rep</b> — จำนวนครั้งเป็นเพดาน ไม่ใช่เป้า',
+   mistake:'ปล่อยเอวแบนลงพื้นตอนเหยียดขา (เท่ากับฝึก posterior tilt ซ้ำ) · เหยียดขาเร็วจนใช้แรงเหวี่ยง · ใช้แบนด์แน่นเกินจนคุมเอวไม่ไหว'},
+
+  {id:'bex',name:'45° Back extension',dose:'3 × 12 · tempo 2-2-1-0 · rest 90s',art:'index_v5_assets/back-extension-neutral-vs-hyperextend-v1.svg',
+   target:'โหลด lumbar erector กับ multifidus <b>เข้าไปในช่วงที่ขาดหายไป</b>โดยตรง · เป็นท่าเดียวในโปรแกรมที่ฝึก extension ต้านแรงโน้มถ่วงจริง ไม่ใช่แค่หา position',
+   note:'ตั้งเบาะให้ขอบอยู่ใต้ ASIS พอดี · ลง 2 วินาที ขึ้นจนลำตัวเป็นเส้นตรงกับขา <b>ค้างบน 2 วินาที</b> · <b>หยุดที่ neutral บวกอีกนิดเดียว ห้าม hyperextend</b> — เป้าคือคืน range ที่หายไป ไม่ใช่แลกไปเป็นปัญหาอีกด้าน · ไร้น้ำหนักก่อน แล้วค่อยกอดแผ่นน้ำหนักที่อก · ช่องน้ำหนัก = แผ่นที่กอด',
+   mistake:'เหวี่ยงขึ้นแล้วแอ่นสุดแรง · เริ่มด้วยแผ่นน้ำหนักตั้งแต่สัปดาห์แรก · ปล่อยหลังกลมตอนลง (ต้องคุม lordosis ตลอดช่วงเหมือน RDL)'},
+
+  {id:'row',name:'1-arm DB row',dose:'3 × 10 /ข้าง · rest 60s',
+   target:'ส่วนที่ตอบไหล่ห่อ — แต่อยู่ท้ายรายการโดยตั้งใจ เพราะ<b>ไหล่ห่อในเคสนี้เป็นปลายทาง ไม่ใช่ต้นทาง</b> · ประโยชน์จริงของท่านี้อีกอย่างคือได้ฝึกคุม lordosis ในท่าก้มค้างนานๆ ซึ่งคือท่าที่เธออยู่ทั้งวันอยู่แล้ว',
+   note:'เข่าและมือข้างหนึ่งวางบนม้านั่ง หลัง<b>ขนานพื้นและแอ่นค้าง</b> ไม่ใช่หลังกลม · ดึงศอกไปหลังลำตัว บีบสะบัก 1 วินาที · ลงช้ากว่าขึ้น · ช่องน้ำหนัก = ต่อข้าง',
+   mistake:'บิดลำตัวช่วยดึง · หลังกลมตอนตั้งท่า (ถ้าคุมไม่ได้ให้ลดน้ำหนัก ท่านี้มีค่าตรงตำแหน่งหลังพอๆ กับตรงที่ดึงได้) · กระตุกด้วยแขนแทนสะบัก'},
+
+  {id:'dnf',noWeight:1,name:'Deep neck flexor hold',dose:'3 × 20s · rest 30s',
+   target:'มัดลึกหน้าคอที่รับหน้าที่พยุงหัว · <b>ตัวที่ตอบ forward head ตรงที่สุด</b> ในขณะที่การยืดคอไม่ตอบอะไรเลย',
+   note:'นอนหงาย <b>เก็บคางก่อน แล้วค่อยยกหัวพ้นพื้นแค่ 1 เซนติเมตร</b> ลำดับนี้สำคัญ · ค้าง 20 วินาที หายใจปกติ<br>สัญญาณว่าทำผิด: รู้สึกเอ็นสองเส้นหน้าคอ (sternocleidomastoid) โป่งและล้าก่อน แปลว่ามัดตื้นทำงานแทนมัดลึก ให้ลดเวลาลงเหลือ 10 วินาทีแล้วเพิ่มจำนวนเซต',
+   mistake:'ยกหัวสูง · ยกโดยไม่เก็บคางก่อน · กลั้นหายใจ'}
+ ]},
+
+ {dow:'FRI',title:'Mobility & long length',kind:'mobility',items:[
+  {id:'cc',ss:'A',noWeight:1,name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v5_assets/cat-cow-segmental-v1.svg',
+   target:'ตัวหลักที่ตอบ "หลังขยับไม่ค่อยได้" · <b>คำสำคัญคือ segmental</b> — การโค้งหลังเร็วๆ ทั้งแผงคือการเคลื่อนเฉพาะปล้องที่ขยับง่ายอยู่แล้ว ปล้องที่ติดก็ยังติดเหมือนเดิม แถมปล้องที่ขยับง่ายยิ่งขยับเกิน',
+   note:'คลาน 4 ขา · ไล่<b>ทีละปล้อง</b> เริ่มจาก sacrum ม้วนขึ้นไปหาคอ แล้วย้อนกลับ · ช้ามาก <b>4 วินาทีต่อทิศทาง</b> · นึกภาพว่ากำลังงัดปล้องทีละอันให้แยกจากกัน ไม่ใช่โค้งหลังเป็นสะพาน',
+   mistake:'ทำเร็วเป็นการวอร์ม · เคลื่อนทั้งแผงพร้อมกัน · ใช้แรงไหล่ดันพื้นแทนการเคลื่อนหลัง'},
+  {id:'ob',ss:'A',noWeight:1,name:'Open book',dose:'8 /ข้าง · ค้าง 3 วิ',
+   target:'thoracic rotation — แกนที่หายไปเงียบที่สุด และเป็นแกนที่งานส่องกล้องกินไปมากที่สุด',
+   note:'นอนตะแคง สะโพกและเข่างอ 90° วางบนหมอน แขนเหยียดซ้อนกันหน้าอก · <b>หายใจออกพร้อมกับกางแขนบนเปิดออกไปด้านหลัง</b> ตามมือด้วยสายตา · เข่าล่างต้องอยู่กับที่ ไม่เปิดตาม · ค้าง 3 วินาทีที่ปลายทาง',
+   mistake:'ปล่อยเข่าเปิดตาม (กลายเป็นการหมุนที่เอวแทน) · กลั้นหายใจ · เร่งจนกลายเป็นการเหวี่ยงแขน'},
+  {id:'h99',ss:'A',noWeight:1,name:'90/90 hip switch',dose:'10 รอบ',
+   target:'pelvis mobility ในแนวหมุน · เชิงกรานที่หมุนไปหน้าไม่ได้มักจะหมุนแนวอื่นไม่ได้ด้วย',
+   note:'นั่งพื้น ขาหน้างอ 90° ขาหลังงอ 90° <b>หลังตั้งตรงและมี lordosis</b> · หมุนเข่าทั้งสองข้างสลับฝั่งช้าๆ โดยตัวยังตั้งตรง · ถ้าหลังกลมทุกครั้งที่นั่งท่านี้ ให้นั่งบนหมอนหรือแผ่นโฟมสูงขึ้น',
+   mistake:'นั่งหลังกลมทั้งเซต · ใช้มือดันพื้นสวิงตัว · เร่งจังหวะ'},
+
+  {id:'slc',noWeight:1,name:'Eccentric slider leg curl',dose:'3 × 6 · ลง 5 วิ · rest 2:00',
+   target:'hamstring ในช่วงยาวอีกมุมหนึ่ง — <b>เป็น knee-flexor job ส่วน RDL เป็น hip job</b> มัดเดียวกันแต่คนละหน้าที่ ทั้งสองอันจึงต้องมี · eccentric ล้วน คือสิ่งที่เพิ่มความยาวเส้นใยจริง',
+   note:'นอนหงาย ส้นเท้าบนผ้าหรือ slider ยกสะโพกขึ้นเป็น glute bridge · ค่อยๆ เหยียดขาออก <b>5 วินาที โดยสะโพกห้ามตก</b> · พอสุดแล้ว<b>วางสะโพกลง</b> แล้วใช้แขนช่วยดึงขากลับ — ตัดจังหวะ concentric ทิ้งทั้งหมด นั่นคือทั้งหมดของท่านี้<br>เริ่มสองขาพร้อมกัน → เปลี่ยนเป็นขาเดียวเมื่อคุม 3×8 ได้<br><b>Nordic curl ค่อยพิจารณาหลังสัปดาห์ที่ 12</b> ไม่ต้องรีบ DOMS แรงมากและไม่จำเป็นสำหรับเป้าหมายนี้',
+   mistake:'ปล่อยสะโพกตกกลางทาง (โหลดหายทันที) · ลงเร็วกว่า 5 วินาที · ดึงกลับด้วยขาแทนแขน'},
+
+  {id:'hkh',noWeight:1,name:'Standing high-knee hold',dose:'3 × 20s /ข้าง · rest 45s',
+   target:'psoas ใน<b>ช่วงหดสั้นที่สุด</b> ซึ่งเป็นช่วงที่มันอ่อนที่สุดเสมอ · คู่กับ psoas march วันอังคาร: อันนั้นเป็นงานเคลื่อนไหว อันนี้เป็นงานค้าง',
+   note:'ยืนขาเดียว <b>ยกเข่าให้สูงกว่าระดับสะโพก</b> ไม่ใช่แค่ 90° · ไม่พิงอะไร ไม่ใช้มือกอดเข่า · ตัวตั้งตรงและ<b>รักษา lordosis</b> ห้ามหลังแอ่นชดเชยหรือเอนหลัง · ค้าง 20 วินาที',
+   mistake:'ยกได้แค่ 90° แล้วนึกว่าพอ (ช่วงที่ต้องการอยู่เหนือนั้น) · เอนตัวไปหลังเพื่อยกเข่าให้สูง · พิงกำแพง'},
+
+  {id:'hkr',noWeight:1,name:'Half-kneeling hinge reach',dose:'3 × 8 /ข้าง · ค้าง 2 วิ',
+   target:'hamstring ทีละข้างโดยที่<b>ยังบังคับให้หลังแอ่น</b> — คือสิ่งที่ท่ายืดมาตรฐานทั้งหมดทำตรงกันข้าม',
+   note:'คุกเข่าข้างหนึ่ง ขาหน้าเหยียดตรงส้นเท้าติดพื้นปลายเท้ากระดกขึ้น · <b>ตั้ง lordosis ก่อน</b> แล้วพับที่สะโพกเอื้อมไปหาปลายเท้า · <b>หยุดทันทีที่หลังเริ่มกลม</b> ค้าง 2 วินาทีแล้วกลับ<br>ถ้ารู้สึกตึงที่หลังมากกว่าที่ต้นขาหลัง แปลว่าเลย ceiling ไปแล้ว',
+   mistake:'เอื้อมให้ถึงปลายเท้าโดยยอมให้หลังกลม (ก็คือ seated forward fold ในท่าใหม่) · งอเข่าขาหน้า · เด้งเป็นจังหวะ'},
+
+  {id:'yt',name:'Prone Y + T',dose:'2 × 10 แต่ละแบบ · ค้าง 2 วิ',
+   target:'lower trapezius กับ posterior delt · <b>ยกอกพ้นพื้นด้วย</b> ทำให้ท่านี้เป็น thoracic extension ไปในตัว ไม่ใช่แค่งานสะบัก',
+   note:'นอนคว่ำ หน้าผากลอยเล็กน้อย · <b>Y</b> แขนเหยียดทำมุมประมาณ 45° หัวแม่มือชี้ขึ้น · <b>T</b> แขนกางออกข้างลำตัว · ยกแขนพร้อมกับยกอกพ้นพื้น ค้าง 2 วินาที · ดัมเบล 1–2 kg พอ · ช่องน้ำหนัก = ต่อข้าง',
+   mistake:'ยกด้วยการแอ่นเอวแทนการยกอก · ใช้ดัมเบลหนักจนไหล่ยกขึ้นหาหู · ยกเร็วไม่ค้าง'},
+
+  {id:'fp',name:'Face pull',dose:'3 × 15 · tempo 2-1-2-0',art:'index_v5_assets/face-pull-v2.svg',
+   target:'ปิดท้ายด้วยงานสะบักที่คุ้มที่สุดต่อเซต · เป็นท่าที่<b>ทำถี่ได้โดยไม่มีต้นทุน</b> ต่างจากท่าดึงหนัก',
+   note:'เชือกสูงระดับหน้า · ดึงเข้าหาหน้าผาก <b>แยกมือออกจากกันตอนจบ ข้อศอกสูงกว่าไหล่</b> · บีบค้าง 1 วินาที · ปล่อยกลับช้า 2 วินาที · น้ำหนักเบาพอที่จะไม่ต้องเอนตัวถ่วง',
+   mistake:'หนักจนต้องเอนหลังถ่วงน้ำหนัก · ดึงเข้าหาอกแทนหน้าผาก · ศอกตกต่ำกว่าไหล่'}
+ ]},
+
+ {dow:'SUN',title:'Legs',sub:'· optional',kind:'optional',items:[
+  {id:'gsq',name:'Goblet squat',dose:'3 × 8',
+   target:'ขาโดยรวม · <b>ไม่มีบทบาทต่อ pattern ที่กำลังแก้</b> อยู่ในนี้เพราะการฝึกขาไม่ควรหยุดตลอด 12 สัปดาห์ ไม่ใช่เพราะมันช่วยเรื่องหลัง',
+   note:'ถือดัมเบลไว้ที่อก ย่อลงระหว่างเข่า · ลงลึกเท่าที่<b>เชิงกรานยังไม่ม้วนเก็บ</b> (butt wink) — จุดนั้นคือ ceiling เดียวกับที่ใช้กับ RDL ด้วยเหตุผลเดียวกัน · ยืนบนแผ่นรองส้นได้ถ้าข้อเท้าตึง',
+   mistake:'ลงลึกจน butt wink ทุกครั้ง · หนักจนหลังกลม'},
+  {id:'spl',name:'Split squat',dose:'3 × 10 /ข้าง',
+   target:'ขาข้างเดียว + ยืดสะโพกหน้าข้างหลังไปในตัว',
+   note:'ก้าวยาว ย่อลงตรงๆ เข่าหลังเกือบแตะพื้น · <b>บีบก้นข้างหลังตอนขึ้น</b> จะได้ hip flexor stretch ฟรีในท่าที่ active · ช่องน้ำหนัก = ต่อข้าง',
+   mistake:'โน้มตัวไปหน้ามาก · ก้าวสั้นจนเข่าหน้าเลยปลายเท้ามาก'},
+  {id:'cal',name:'Calf raise',dose:'3 × 15',
+   target:'น่อง · gastrocnemius ข้ามข้อเข่า จึงมีส่วนในความตึงด้านหลังขาที่คนมักโทษ hamstring อย่างเดียว',
+   note:'ยืนบนขอบขั้น ปล่อยส้นลงต่ำสุดค้าง 2 วินาที แล้วเขย่งขึ้นสุด',
+   mistake:'เด้งเป็นจังหวะ · ไม่ปล่อยส้นลงสุด'}
+ ]}
+];
+
+/* ================= daily block ================= */
+/* The order is not a preference. Motor control has to come before tissue work,
+   or the tissue work is done in the pattern being corrected. */
+const DAILY=[
+ {id:'d1',name:'Supine pelvic tilt',dose:'2 × 10 · ค้าง 5 วิ',
+  target:'<b>ท่าแรกและสำคัญที่สุดของบล็อกนี้</b> — ก่อนจะโหลด lordosis ได้ ต้องหามันเจอโดยไม่ต้องคิดก่อน ทุกอย่างที่เหลือในโปรแกรมสร้างอยู่บนความสามารถนี้',
+  note:'นอนหงาย ชันเข่า <b>สอดหลังมือไว้ใต้เอว</b> · หมุนเชิงกรานไปข้างหน้าจนกดมือแน่นขึ้น ค้าง 5 วินาที แล้วผ่อนกลับ neutral — <b>ไม่ต้องกดแบน</b><br>สิ่งที่ต้องรู้สึก: <b>erector เอวทำงาน ไม่ใช่ก้นเกร็ง</b> ถ้าก้นเกร็งแปลว่ากำลังทำ posterior tilt อยู่ ซึ่งคือทิศตรงข้ามกับที่ต้องการ',
+  mistake:'บีบก้นเพื่อช่วย · ดันด้วยเท้าจนสะโพกยกลอย · ทำเร็วเป็นจังหวะโดยไม่ค้าง'},
+ {id:'d2',name:'Quadruped rock-back',dose:'2 × 10 · ค้าง 3 วิ',
+  target:'เอา lordosis ที่หาเจอตอนนอนมาใช้ในท่าที่รับน้ำหนัก · เป็นสะพานระหว่างท่านอนกับท่ายืน',
+  note:'คลาน 4 ขา <b>ตั้ง lordosis ให้ชัดก่อน</b> แล้วค่อยๆ ถอยก้นไปหาส้นเท้า · <b>หยุดทันทีที่เอวเริ่มโค้งกลับ</b> — จุดนั้นคือ ROM จริงของวันนี้ ค้าง 3 วินาทีแล้วกลับ<br>ระยะที่ถอยได้จะเพิ่มขึ้นเองเมื่อ hamstring ยาวขึ้น ไม่ต้องฝืน',
+  mistake:'ถอยจนก้นแตะส้นเท้าโดยยอมให้หลังกลม · ลืมตั้ง lordosis ก่อนเริ่ม · ทำเร็ว'},
+ {id:'d3',name:'Segmental cat–cow',dose:'8 รอบ · 4 วิ/ทิศ',art:'index_v5_assets/cat-cow-segmental-v1.svg',
+  target:'ตัวที่ตอบ mobility โดยตรง · ทำซ้ำจากวันศุกร์เพราะ<b>mobility ตอบสนองต่อความถี่ ไม่ใช่ปริมาณต่อครั้ง</b>',
+  note:'ไล่ทีละปล้อง ช้ามาก 4 วินาทีต่อทิศทาง · รายละเอียดเต็มอยู่ในการ์ดวันศุกร์',
+  mistake:'ทำเร็ว · เคลื่อนทั้งแผงพร้อมกัน'},
+ {id:'d4',name:'Hamstring contract–relax',dose:'4 รอบ /ข้าง',
+  target:'ยืด hamstring แบบเดียวที่<b>ไม่พาเชิงกรานไปทางที่ผิด</b> · contract-relax ได้ range เร็วกว่าการค้างเฉยๆ เพราะทำงานผ่าน neural inhibition ไม่ใช่แค่รอเนื้อเยื่อยอม',
+  note:'นอนหงาย ใช้สายรัดหรือผ้าขนหนูคล้องเท้า · <b>ขาอีกข้างเหยียดตรงติดพื้น</b> ถ้างอเข่าจะโกงด้วย posterior tilt ทันที · เอว neutral มี arch เล็กน้อย <b>ห้ามกดแบน</b><br>หนึ่งรอบ = ดันขาสู้สายรัดที่แรงประมาณ 20–30% <b>5 วินาที</b> → ผ่อน → ดึงเข้าหา range ใหม่ ค้าง <b>20 วินาที</b>',
+  mistake:'งอเข่าข้างที่ไม่ได้ทำ · กดหลังแบนติดพื้น · ออกแรงดันเต็มที่ (20–30% พอ)'},
+ {id:'d5',name:'Chin tuck',dose:'10 × ค้าง 5 วิ',
+  target:'forward head · เล็กแต่ถูกมาก ทำได้ระหว่างรอ lift รอเคส',
+  note:'คางเก็บเข้าหาลำคอ ท้ายทอยยืดขึ้น <b>เหมือนถูกดึงจากกลางกระหม่อม</b> ไม่ใช่ก้มหน้า · ค้าง 5 วินาที',
+  mistake:'ก้มหน้าแทนการเก็บคาง · เกร็งไหล่ตาม'},
+ {id:'dn',slumpOnly:1,name:'Sciatic nerve slider',dose:'2 × 10 · วันละ 2 ครั้ง',
+  target:'แสดงเฉพาะเมื่อ slump test เป็นบวก · <b>อาการตึงหลังขาที่มาจาก nerve tension ไม่ใช่กล้ามเนื้อสั้น</b> และการยืดแรงๆ ทำให้แย่ลง — nerve ต้องการ glide ไม่ใช่ stretch',
+  note:'นั่งตัวตรง · <b>งอคอลง + เหยียดเข่าออก พร้อมกัน</b> → สลับ: <b>เงยคอขึ้น + งอเข่ากลับ</b> · จังหวะประมาณ 2 วินาทีต่อทิศ<br><b>ห้ามรู้สึกตึงหรือแปลบ</b> ถ้ารู้สึกคือทำเกิน · ทำ 3–4 สัปดาห์แล้ว re-test slump ถ้าลบแล้วค่อยเริ่ม hamstring loading เต็มที่',
+  mistake:'ยืดค้างที่ปลายทาง (กลายเป็น tensioner ไม่ใช่ slider) · ทำจนรู้สึกตึง · ทำแรงและเร็ว'}
+];
+
+const ITEM={}; for(const d of PLAN) for(const it of d.items) ITEM[it.id]=it;
+const HABIT={}; for(const h of DAILY) HABIT[h.id]=h;
+
+/* ================= tests ================= */
+/* inv:1 = a lower number is the better number */
+const TESTS=[
+ {k:'slrL',label:'Passive SLR · ซ้าย',unit:'°',sub:'นอนหงาย เข่าตรง ยกจนเชิงกรานเริ่มหมุนตาม · เป้า ≥ 80°',step:5},
+ {k:'slrR',label:'Passive SLR · ขวา',unit:'°',sub:'ขาอีกข้างต้องเหยียดตรงติดพื้นตลอด',step:5},
+ {k:'rdl' ,label:'RDL depth ceiling',unit:'cm',sub:'ระยะจากพื้นถึงมือ ที่ยัง hold lordosis ได้ · ต่ำลง = ดีขึ้น',step:1,inv:1},
+ {k:'tilt',label:'Active tilt control',unit:'/5',sub:'ยืนพิงกำแพง คุมเชิงกรานหน้า–หลังได้กี่ระดับ · ให้คะแนนเอง 1–5',step:1}
+];
+
+/* ================= state ================= */
+const CHECK='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const lsGet=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } };
+const lsSet=(k,v)=>{ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } };
+
+function now(){ const d=new Date(); if(d.getHours()<ROLL_HOUR) d.setDate(d.getDate()-1); return d; }
+function dowOf(d){ return (d.getDay()+6)%7; }
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ym(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function weekKey(d){
+  const t=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  t.setDate(t.getDate()+3-((t.getDay()+6)%7));
+  const w1=new Date(t.getFullYear(),0,4);
+  const n=1+Math.round(((t-w1)/86400000-3+((w1.getDay()+6)%7))/7);
+  return t.getFullYear()+'-W'+String(n).padStart(2,'0');
+}
+function mondayOf(d){ const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()); t.setDate(t.getDate()-dowOf(t)); return t; }
+function addDays(d,n){ const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()); t.setDate(t.getDate()+n); return t; }
+
+const BLANK={wk:weekKey(now()),checks:{},weights:{},slump:false,start:ymd(mondayOf(now())),tests:[]};
+let state=BLANK;
+function load(){
+  let s=null;
+  try{ s=JSON.parse(lsGet(KEY)||'null'); }catch(e){ s=null; }
+  state=Object.assign({},BLANK,s||{});
+  /* shapes are validated, not just defaulted — a string where an object belongs
+     turns every later write into a silent no-op */
+  if(typeof state.checks!=='object'||!state.checks) state.checks={};
+  if(typeof state.weights!=='object'||!state.weights) state.weights={};
+  if(!Array.isArray(state.tests)) state.tests=[];
+  if(typeof state.start!=='string') state.start=ymd(mondayOf(now()));
+}
+let saveT=null;
+function save(){ clearTimeout(saveT); saveT=setTimeout(flush,300); }
+function flush(){ clearTimeout(saveT); saveT=null; lsSet(KEY,JSON.stringify(state)); }
+addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flush(); });
+addEventListener('pagehide',flush);
+
+/* ---- history · one shard per year ---- */
+let histRecs=[];
+function histIndex(){ try{ const a=JSON.parse(lsGet(HIDX)||'[]'); return Array.isArray(a)?[...new Set(a.map(Number))].filter(Boolean):[]; }catch(e){ return []; } }
+function loadHist(){
+  histRecs=[];
+  for(const y of histIndex()){
+    try{ const a=JSON.parse(lsGet(HSHARD(y))||'[]'); if(Array.isArray(a)) histRecs.push(...a); }catch(e){}
+  }
+  histRecs.sort((a,b)=>a.week<b.week?1:-1);
+}
+function archive(rec){
+  const y=Number(rec.week.slice(0,4));
+  let a=[]; try{ a=JSON.parse(lsGet(HSHARD(y))||'[]'); if(!Array.isArray(a)) a=[]; }catch(e){}
+  if(a.some(r=>r.week===rec.week)) return;
+  a.push(rec); lsSet(HSHARD(y),JSON.stringify(a));
+  const idx=histIndex(); if(!idx.includes(y)){ idx.push(y); lsSet(HIDX,JSON.stringify(idx)); }
+}
+/* Weights carry forward between weeks — the field should open showing what she
+   lifted last time, not empty. That makes the archive step non-obvious: dumping
+   state.weights wholesale would write a full row for a week she skipped, because
+   the numbers are still sitting there from a fortnight ago. Only ids that were
+   actually TICKED get archived, so a missed week reads as missing. */
+function rollover(){
+  const cur=weekKey(now());
+  if(state.wk===cur) return;
+  const done=Object.keys(state.checks);
+  if(done.length){
+    const w={};
+    for(const id of done){ if(state.weights[id]!=null&&state.weights[id]!=='') w[id]=state.weights[id]; }
+    archive({week:state.wk,c:Object.assign({},state.checks),w});
+  }
+  state.wk=cur; state.checks={};
+  flush();
+}
+function lastRecorded(id){ for(const r of histRecs){ const v=r.w&&r.w[id]; if(v!==undefined&&v!==''&&v!=null) return v; } return null; }
+
+/* ---- daily log · one shard per month ---- */
+function dayLog(m){ try{ const o=JSON.parse(lsGet(DSHARD(m))||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+function dayGet(dstr,id){ const o=dayLog(dstr.slice(0,7))[dstr]; return !!(o&&o[id]); }
+function dayToggle(dstr,id){
+  const m=dstr.slice(0,7), o=dayLog(m);
+  if(!o[dstr]) o[dstr]={};
+  if(o[dstr][id]) delete o[dstr][id]; else o[dstr][id]=1;
+  if(!Object.keys(o[dstr]).length) delete o[dstr];
+  lsSet(DSHARD(m),JSON.stringify(o));
+}
+function density(id,days){
+  let n=0, t=now();
+  const cache={};
+  for(let i=0;i<days;i++){
+    const d=addDays(t,-i), m=ym(d);
+    if(!cache[m]) cache[m]=dayLog(m);
+    const o=cache[m][ymd(d)];
+    if(o&&o[id]) n++;
+  }
+  return n;
+}
+
+/* ---- phase ---- */
+function progWeek(){
+  const s=new Date(state.start+'T00:00:00');
+  if(isNaN(s)) return 1;
+  return Math.max(1,Math.floor((mondayOf(now())-mondayOf(s))/604800000)+1);
+}
+function phaseOf(w){ return w<=4?1:(w<=12?2:3); }
+const PHASE={
+ 1:{n:'Phase 1 · motor control',t:'สัปดาห์ 1–4 · <b>RDL ใช้บาร์เปล่าหรือดัมเบลเบา</b> เป้าของเฟสนี้คือหา lordosis ให้เจอโดยไม่ต้องคิด ตัวเลขในช่องน้ำหนักยังไม่ใช่สิ่งที่วัดความคืบหน้า'},
+ 2:{n:'Phase 2 · loading',t:'สัปดาห์ 5–12 · เริ่มเพิ่มน้ำหนักตาม progression rule — <b>depth ก่อน load ทีหลัง</b> เสมอ'},
+ 3:{n:'Phase 3 · maintain',t:'สัปดาห์ 13 ขึ้นไป · Daily Block ลดเหลือ 3 ครั้ง/สัปดาห์ได้ · <b>RDL คงไว้ตลอดไป</b> เป็นท่าหลัก ไม่ใช่ท่าที่ทำจนหายแล้วเลิก'}
+};
+
+/* ================= week tab ================= */
+function noteHTML(it){
+  let h='';
+  if(it.target)  h+='<p class="tl"><span class="lab">Why</span>'+it.target+'</p>';
+  if(it.note)    h+='<p class="tn"><span class="lab">How</span>'+it.note+'</p>';
+  if(it.art){
+    const arts=Array.isArray(it.art)?it.art:[it.art];
+    h+='<figure class="poseart">'+arts.map((src,i)=>'<img src="'+esc(src)+'" alt="ภาพสาธิต '+esc(it.name)+(arts.length>1?' '+(i+1):'')+'" loading="lazy">').join('')+'<figcaption class="posecredit">Pose artwork based on Everkinetic, adapted by Bryl Lim (workout-guide), modified</figcaption></figure>';
+  }
+  if(it.mistake) h+='<p class="tn"><span class="lab">Watch for</span>'+it.mistake+'</p>';
+  return h;
+}
+function histHTML(it){
+  if(it.noWeight) return '';
+  const rows=[];
+  for(const r of histRecs){ const v=r.w&&r.w[it.id]; if(v!==undefined&&v!==''&&v!=null) rows.push({week:r.week,w:Number(v)}); if(rows.length>=8) break; }
+  if(!rows.length) return '<p class="histcap">ยังไม่มีประวัติ — แถวแรกจะขึ้นเมื่อสัปดาห์ rollover</p>';
+  let h='<p class="histcap">Weight · last 8 weeks</p><table class="h">';
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i],p=rows[i+1];
+    const d=p?+(r.w-p.w).toFixed(1):null;
+    const cls=d==null||d===0?'':(d>0?'up':'dn');
+    const txt=d==null?'':(d>0?'+'+d:(d<0?''+d:'—'));
+    h+='<tr><td class="w">'+r.week.slice(5)+'</td><td class="kg">'+r.w+' kg</td><td class="d '+cls+'">'+txt+'</td></tr>';
+  }
+  return h+'</table>';
+}
+function itemHTML(it,grouped){
+  const on=state.checks[it.id]?' on':'';
+  let wt='';
+  if(!it.noWeight){
+    const anchor=lastRecorded(it.id);
+    const v=state.weights[it.id]??'';
+    wt='<div class="wtwrap"><input class="wtin" type="number" step="0.5" inputmode="decimal" data-wt="'+it.id+'" value="'+esc(v)+'" placeholder="'+(anchor?esc(anchor):'')+'" aria-label="weight in kg, '+esc(it.name)+'"></div>';
+  }
+  const hist=it.noWeight?'':'<div class="histsplit"></div><div class="histbody"><span class="eyebrow">History</span>'+histHTML(it)+'</div>';
+  const ds=String(it.dose).split('·')[0].trim();
+  const det='<div class="drop"><p class="dosefull">'+esc(it.dose)+'</p><div class="note">'+noteHTML(it)+'</div>'+hist+'</div>';
+  const box=grouped?'':'<button class="box'+on+'" data-check="'+it.id+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(it.name)+'">'+CHECK+'</button>';
+  return '<div class="item'+on+(grouped?' nobox':'')+'" data-item="'+it.id+'">'+box+
+    '<span class="txt"><span class="name">'+esc(it.name)+'</span><span class="dose">'+esc(ds)+'</span></span>'+
+    wt+'<button class="idet" data-det="'+it.id+'" aria-expanded="false" aria-label="detail, '+esc(it.name)+'">i</button>'+
+    '</div>'+det;
+}
+function dayHTML(day,i){
+  const k=KIND[day.kind];
+  const isToday=DOWI[day.dow]===dowOf(now());
+  let inner='',open=null,buf=[],ids=[];
+  const flushG=()=>{ if(!buf.length) return;
+    const isSS=open&&ids.length>1;
+    const head=(open&&ids.length)
+      ? '<div class="grphead"><button class="box" data-gcheck="'+ids.join(',')+'" aria-pressed="false" aria-label="'+(isSS?'block, '+ids.length+' exercises':'tick group')+'">'+CHECK+'</button><p class="sslab">'+(isSS?'block':'')+'</p></div>'
+      : '<p class="sslab"></p>';
+    inner+='<div class="grp'+(isSS?' ss':'')+'">'+head+buf.join('')+'</div>';
+    buf=[];ids=[]; };
+  for(const it of day.items){
+    if((it.ss||null)!==open){ flushG(); open=it.ss||null; }
+    buf.push(itemHTML(it,!!open));
+    if(open) ids.push(it.id);
+    if(!open) flushG();
+  }
+  flushG();
+  return '<section class="day'+(isToday?' today':'')+'" data-day="'+i+'" style="--accent:'+k.accent+';--soft:'+k.soft+';--tint:'+k.tint+'">'+
+    '<button class="head" data-toggle="'+i+'" aria-expanded="false"><span class="stk">'+
+      '<span class="dow">'+day.dow+(day.sub?' <span class="sub">'+esc(day.sub)+'</span>':'')+'</span>'+
+      '<span class="title">'+esc(day.title)+'</span></span>'+
+      '<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></span>'+
+    '</button><span class="prog"><i data-prog="'+i+'"></i></span><div class="body">'+inner+'</div></section>';
+}
+const daysEl=document.getElementById('days');
+function paintGroups(el){
+  for(const b of el.querySelectorAll('[data-gcheck]')){
+    const ids=b.dataset.gcheck.split(',').filter(Boolean);
+    const on=ids.length>0&&ids.every(id=>state.checks[id]);
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+  }
+}
+function markNext(el){
+  let found=false;
+  for(const g of el.querySelectorAll('.grp')){
+    const open=!found&&!!g.querySelector('.box:not(.on)');
+    g.classList.toggle('now',open);
+    const lab=g.querySelector('.sslab');
+    if(lab) lab.textContent=open?'up next':(g.classList.contains('ss')?'block':'');
+    if(open) found=true;
+  }
+}
+function sync(i){
+  const day=PLAN[i],el=daysEl.querySelector('[data-day="'+i+'"]');
+  if(!el) return;
+  const n=day.items.filter(it=>state.checks[it.id]).length;
+  const bar=el.querySelector('[data-prog="'+i+'"]');
+  if(bar) bar.style.width=(day.items.length?n/day.items.length*100:0)+'%';
+  paintGroups(el); markNext(el);
+  el.classList.toggle('done',n===day.items.length);
+}
+function autoTick(el,id){
+  if(state.checks[id]) return;
+  state.checks[id]=true;
+  const item=el.closest('.item'); if(!item) return;
+  const box=item.querySelector('[data-check]');
+  if(box){ box.classList.add('on'); box.setAttribute('aria-pressed','true'); }
+  item.classList.add('on');
+  const d=el.closest('[data-day]'); if(d) sync(Number(d.dataset.day));
+}
+function buildWeek(){
+  daysEl.innerHTML=PLAN.map(dayHTML).join('');
+  PLAN.forEach((_,i)=>sync(i));
+  const td=dowOf(now());
+  PLAN.forEach((s,i)=>{
+    if(DOWI[s.dow]!==td) return;
+    const el=daysEl.querySelector('[data-day="'+i+'"]');
+    if(el){ el.classList.add('open'); el.querySelector('.head').setAttribute('aria-expanded','true'); }
+  });
+  const w=progWeek(),p=PHASE[phaseOf(w)];
+  document.getElementById('weekno').innerHTML='Week <b>'+w+'</b> · '+esc(p.n.split('·')[1].trim());
+  document.getElementById('dailyno').innerHTML='Week <b>'+w+'</b> · '+esc(p.n.split('·')[1].trim());
+  document.getElementById('wkintro').innerHTML=
+    '<div class="prbox"><span class="prh">'+esc(p.n)+'</span><p class="prt">'+p.t+'</p></div>'+
+    (state.slump?'<div class="prbox flag"><span class="prh">Slump positive</span><p class="prt">ตอนนี้ตั้งค่าไว้ว่า slump test เป็นบวก · <b>Hamstring contract–relax ให้ลดแรงลงครึ่งหนึ่งและหยุดก่อนรู้สึกตึง</b> · nerve slider โผล่อยู่ในแท็บ Daily แล้ว · re-test ทุก 2 สัปดาห์ พอเป็นลบค่อยปิดสวิตช์ในแท็บ Tests</p></div>':'');
+}
+daysEl.addEventListener('click',e=>{
+  const tg=e.target.closest('[data-toggle]');
+  if(tg){
+    const el=daysEl.querySelector('[data-day="'+tg.dataset.toggle+'"]');
+    tg.setAttribute('aria-expanded',el.classList.toggle('open')?'true':'false');
+    return;
+  }
+  const dt=e.target.closest('[data-det]');
+  if(dt){
+    const item=dt.closest('.item');
+    const open=item.classList.toggle('det');
+    dt.setAttribute('aria-expanded',open?'true':'false');
+    return;
+  }
+  const gb=e.target.closest('[data-gcheck]');
+  if(gb){
+    const ids=gb.dataset.gcheck.split(',').filter(Boolean);
+    const to=!ids.every(id=>state.checks[id]);
+    for(const id of ids){
+      if(to) state.checks[id]=true; else delete state.checks[id];
+      const row=daysEl.querySelector('[data-item="'+id+'"]');
+      if(row) row.classList.toggle('on',to);
+    }
+    save(); sync(Number(gb.closest('[data-day]').dataset.day));
+    return;
+  }
+  const cb=e.target.closest('[data-check]');
+  if(cb){
+    const id=cb.dataset.check;
+    const to=!state.checks[id];
+    if(to) state.checks[id]=true; else delete state.checks[id];
+    cb.classList.toggle('on',to); cb.setAttribute('aria-pressed',to?'true':'false');
+    cb.closest('.item').classList.toggle('on',to);
+    save(); sync(Number(cb.closest('[data-day]').dataset.day));
+  }
+});
+daysEl.addEventListener('input',e=>{
+  const w=e.target.closest('[data-wt]');
+  if(!w) return;
+  const id=w.dataset.wt;
+  if(w.value==='') delete state.weights[id]; else state.weights[id]=w.value;
+  /* typing a number IS doing the exercise — never auto-UNticks, because clearing
+     a mistyped number must not erase the set */
+  if(w.value!=='') autoTick(w,id);
+  save();
+});
+
+/* ================= daily tab ================= */
+const habEl=document.getElementById('habits');
+function buildDaily(){
+  const t=now(),mon=mondayOf(t),tdi=dowOf(t);
+  const list=DAILY.filter(h=>!h.slumpOnly||state.slump);
+  habEl.innerHTML=list.map(h=>{
+    let grid='';
+    for(let i=0;i<7;i++){
+      const d=addDays(mon,i),ds=ymd(d);
+      const on=dayGet(ds,h.id);
+      const cls=i===tdi?' today':(i>tdi?' future':'');
+      grid+='<div class="gcell'+cls+'"><span class="gdow">'+DOW_TH[i]+'</span>'+
+        '<button class="gbox'+(on?' on':'')+'" data-hab="'+h.id+'" data-d="'+ds+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(h.name)+' '+ds+'">'+CHECK+'</button></div>';
+    }
+    return '<section class="hab">'+
+      '<div class="habtop"><span class="habname">'+esc(h.name)+'</span><span class="density">'+density(h.id,30)+'/30</span></div>'+
+      '<p class="habdose" style="margin:5px 0 0">'+esc(h.dose)+'</p>'+
+      '<div class="grid">'+grid+'</div>'+
+      '<details><summary>รายละเอียด</summary><div class="note">'+noteHTML(h)+'</div></details>'+
+    '</section>';
+  }).join('')+
+  '<div class="prbox"><span class="prh">ทำไมบล็อกนี้อยู่คนละแท็บ</span>'+
+  '<p class="prt">motor control ตอบสนองต่อ<b>ความถี่</b> ไม่ใช่ปริมาณต่อครั้ง 10 นาทีทุกวันชนะ 45 นาทีสองครั้งต่อสัปดาห์อย่างขาดลอยสำหรับงานประเภทนี้ · เวรพังตารางแน่นอน <b>ถ้าเลือกได้อย่างเดียวให้เลือกแท็บนี้ ไม่ใช่วันยิม</b></p>'+
+  '<p class="prt">ลำดับในบล็อกไม่ใช่ความชอบ — หา position ให้เจอก่อน แล้วค่อยทำงานกับเนื้อเยื่อ ถ้าสลับลำดับก็คือกำลังยืดอยู่ใน pattern เดิมที่พยายามจะแก้</p></div>';
+}
+habEl.addEventListener('click',e=>{
+  const b=e.target.closest('[data-hab]');
+  if(!b) return;
+  dayToggle(b.dataset.d,b.dataset.hab);
+  buildDaily();
+});
+
+/* ================= tests tab ================= */
+const tstEl=document.getElementById('tests');
+let draft={};
+function testHistHTML(k,inv){
+  const rows=state.tests.filter(r=>r[k]!=null&&r[k]!=='').slice(-8).reverse();
+  if(rows.length<1) return '';
+  let h='<table class="h">';
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i],p=rows[i+1];
+    const d=p?+(Number(r[k])-Number(p[k])).toFixed(1):null;
+    const cls=d==null||d===0?'':((d>0)!==!!inv?'up':'dn');
+    const txt=d==null?'':(d>0?'+'+d:''+d);
+    h+='<tr><td class="w">'+r.d.slice(5)+'</td><td class="kg">'+r[k]+'</td><td class="d '+cls+'">'+txt+'</td></tr>';
+  }
+  return h+'</table>';
+}
+function buildTests(){
+  const last=state.tests.length?state.tests[state.tests.length-1]:null;
+  let rows='';
+  for(const t of TESTS){
+    const v=draft[t.k]??'';
+    rows+='<div class="tsrow"><span class="tslab">'+esc(t.label)+'<span class="tssub">'+esc(t.sub)+'</span></span>'+
+      '<span class="wtwrap"><input class="wtin tsin" type="number" step="'+t.step+'" inputmode="decimal" data-ts="'+t.k+'" value="'+esc(v)+'" placeholder="'+(last&&last[t.k]!=null?esc(last[t.k]):'')+'" aria-label="'+esc(t.label)+'"><span class="unit">'+t.unit+'</span></span></div>';
+  }
+  let hist='';
+  for(const t of TESTS){
+    const h=testHistHTML(t.k,t.inv);
+    if(h) hist+='<p class="histcap" style="margin-top:12px">'+esc(t.label)+'</p>'+h;
+  }
+  tstEl.innerHTML=
+  '<section class="hab"><div class="habtop"><span class="habname">Baseline &amp; re-test</span>'+
+    '<span class="density">ทุก 4 สัปดาห์</span></div>'+
+    '<p class="prt" style="margin:8px 0 12px;font-size:var(--s3)">น้ำหนักบนบาร์ไม่ใช่ผลลัพธ์ของโปรแกรมนี้ <b>SLR กับความลึกที่ lordosis ยังอยู่</b> ต่างหากที่เป็น · ถ่ายรูปด้านข้างเก็บไว้ด้วยทุกครั้ง</p>'+
+    rows+
+    '<div class="iorow"><button class="btn" id="tsave">บันทึกผลวันนี้</button>'+
+      '<button class="btn ghost" id="tclear">ล้างช่อง</button></div>'+
+    (hist?'<details open style="margin-top:14px"><summary>History</summary><div class="histbody">'+hist+'</div></details>':'')+
+  '</section>'+
+
+  '<section class="hab"><div class="habtop"><span class="habname">Slump test</span></div>'+
+    '<p class="prt" style="margin:8px 0 12px;font-size:var(--s3)">SLR แล้วเติม ankle dorsiflexion หรือ cervical flexion เข้าไป <b>ถ้าอาการตึงเปลี่ยนชัดเจน = sciatic nerve tension ไม่ใช่ hamstring สั้น</b> · เจอบ่อยกว่าที่คิดในคนนั่งนานๆ และเป็น branch เดียวในโปรแกรมที่เปลี่ยนแผนจริง ไม่ใช่แค่เปลี่ยนปริมาณ</p>'+
+    '<div class="tsrow"><span class="tslab">ผลตรวจล่าสุด<span class="tssub">เปิดสวิตช์แล้ว nerve slider จะโผล่ในแท็บ Daily และ hamstring work จะถูกลดแรง</span></span>'+
+      '<span class="pair"><button class="tgl warn" id="slumpon" aria-pressed="'+(state.slump?'true':'false')+'">positive</button>'+
+      '<button class="tgl" id="slumpoff" aria-pressed="'+(state.slump?'false':'true')+'">negative</button></span></div>'+
+  '</section>'+
+
+  '<section class="hab"><div class="habtop"><span class="habname">Program start</span></div>'+
+    '<p class="prt" style="margin:8px 0 10px;font-size:var(--s3)">ใช้คำนวณ week number กับ phase · ตั้งเป็นวันจันทร์ของสัปดาห์ที่เริ่มจริง</p>'+
+    '<div class="tsrow"><span class="tslab">วันเริ่ม</span>'+
+      '<input class="wtin" style="width:130px" type="date" id="startd" value="'+esc(state.start)+'" aria-label="program start date"></div>'+
+  '</section>'+
+
+  '<section class="prbox flag"><span class="prh">Red flags · หยุดแล้วไปหา PT / spine</span>'+
+    '<p class="prt">ปวดร้าวลงต่ำกว่าเข่า · ชา · อ่อนแรง · อาการแย่ลงชัดเจนหลังทำไป 2 สัปดาห์<br>'+
+    '<b>อาการปวดเมื่อยกล้ามเนื้อหลังเริ่มท่าใหม่เป็นเรื่องปกติ</b> สิ่งที่ไม่ปกติคืออาการทางระบบประสาท</p></section>';
+}
+tstEl.addEventListener('input',e=>{
+  const t=e.target.closest('[data-ts]');
+  if(t){ draft[t.dataset.ts]=t.value; return; }
+  if(e.target.id==='startd'){ state.start=e.target.value||ymd(mondayOf(now())); save(); buildWeek(); }
+});
+tstEl.addEventListener('click',e=>{
+  if(e.target.id==='tsave'){
+    const rec={d:ymd(now())};
+    let any=false;
+    for(const t of TESTS){ const v=draft[t.k]; if(v!=null&&v!==''){ rec[t.k]=Number(v); any=true; } }
+    if(!any) return;
+    rec.slump=!!state.slump;
+    /* one row per day: re-saving the same day corrects it rather than stacking */
+    state.tests=state.tests.filter(r=>r.d!==rec.d);
+    state.tests.push(rec); state.tests.sort((a,b)=>a.d<b.d?-1:1);
+    draft={}; flush(); buildTests(); return;
+  }
+  if(e.target.id==='tclear'){ draft={}; buildTests(); return; }
+  if(e.target.id==='slumpon'||e.target.id==='slumpoff'){
+    state.slump=e.target.id==='slumpon';
+    flush(); buildTests(); buildDaily(); buildWeek(); return;
+  }
+});
+
+/* ================= why tab ================= */
+/* This tab is the reason the rest of the app is shaped the way it is. Without
+   it the plan reads as a list of exercises, and a list of exercises is exactly
+   what gets abandoned in week three. */
+const SPINE_SVG=`
+<svg viewBox="0 0 320 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="เปรียบเทียบแนวกระดูกสันหลังปกติกับ flat back">
+  <g fill="none" stroke-linecap="round">
+    <!-- normal -->
+    <g transform="translate(-10,0)">
+      <circle cx="102" cy="18" r="10" stroke="#6FBFA0" stroke-width="2" opacity=".8"/>
+      <path d="M102,30 C98,44 88,54 88,68 C78,84 76,96 78,109 C80,129 84,136 86,144 C94,154 96,161 96,169 C96,184 92,192 88,200"
+            stroke="#6FBFA0" stroke-width="3.5"/>
+      <path d="M88,200 L70,214" stroke="#6FBFA0" stroke-width="3" opacity=".55"/>
+      <text x="80" y="238" fill="#6FBFA0" font-family="monospace" font-size="11" text-anchor="middle" opacity=".9">neutral</text>
+    </g>
+    <!-- flat -->
+    <g transform="translate(110,0)">
+      <circle cx="112" cy="18" r="10" stroke="#D6B27C" stroke-width="2" opacity=".8"/>
+      <path d="M112,30 C104,44 92,54 92,68 C80,84 70,96 72,109 C74,130 80,138 82,146 C83,156 84,163 84,171 C84,184 82,192 80,200"
+            stroke="#D6B27C" stroke-width="3.5"/>
+      <path d="M80,200 L64,208" stroke="#D6B27C" stroke-width="3" opacity=".55"/>
+      <text x="76" y="238" fill="#D6B27C" font-family="monospace" font-size="11" text-anchor="middle" opacity=".9">flat back</text>
+    </g>
+    <line x1="160" y1="14" x2="160" y2="222" stroke="#FFFFFF14" stroke-width="1"/>
+  </g>
+</svg>`;
+
+function buildWhy(){
+  document.getElementById('why').innerHTML=`
+<section class="prbox">
+  <p class="lead">ไหล่ห่อกับคอยื่นอยู่ปลายทาง ต้นทางอยู่ที่เชิงกราน</p>
+  <p class="prt">เชิงกรานที่อยู่ในท่า <b>posterior tilt</b> ทำให้เอวเสียโค้งไป พอฐานแบน อกก็ต้องเลื่อนไปข้างหน้าเพื่อรักษาสมดุล แล้วหัวก็ตามไปเพื่อให้ตามองตรง ทั้งสามอย่างจึงเป็นเรื่องเดียวกัน ไม่ใช่สามปัญหา</p>
+  <div class="fig">${SPINE_SVG}</div>
+  <p class="figcap">ซ้าย: โค้งเอวปกติ เชิงกรานเอียงหน้า · ขวา: เอวแบน เชิงกรานม้วนหลัง อกและหัวเลื่อนตาม</p>
+  <p class="prt">ผลที่ตามมาคือถ้าไปแก้ที่ปลายทาง — เล่นแต่ท่าดึง ยืดอก จัดท่านั่ง — จะได้ผลชั่วคราวแล้วกลับที่เดิม เพราะฐานยังเป็นแบบเดิมอยู่</p>
+</section>
+
+<section class="prbox">
+  <span class="prh">ลำดับสามขั้น</span>
+  <table class="t">
+    <tr><td class="k">1 · หา lordosis ให้เจอ</td><td>ถ้ายังหมุนเชิงกรานไปหน้าโดยตั้งใจไม่ได้ ทุกอย่างที่เหลือคือการทำท่าใหม่ด้วย pattern เดิม <b>นี่คือเหตุผลที่ supine pelvic tilt เป็นท่าแรกของทุกวัน</b></td></tr>
+    <tr><td class="k">2 · ปลดสิ่งที่ตรึงไว้</td><td>hamstring ที่สั้นเกาะที่ ischium และดึงเชิงกรานให้ม้วนหลังตลอดเวลา ตราบใดที่ยังไม่ยาวพอ การหมุนไปหน้าก็จะสู้กับสายรัดเส้นนี้ตลอด</td></tr>
+    <tr><td class="k">3 · โหลดในท่านั้น</td><td>สุดท้ายต้องคุม lordosis ได้ขณะรับแรง ไม่ใช่แค่ขณะนอนราบ <b>RDL คือขั้นนี้ทั้งขั้น</b></td></tr>
+  </table>
+  <p class="prt" style="margin-top:12px">ทำสลับลำดับเมื่อไหร่ก็คือซ้อม pattern เดิมต่อไปด้วยอุปกรณ์ที่แพงขึ้น</p>
+</section>
+
+<section class="prbox">
+  <span class="prh">Extensibility ไม่เท่ากับ stretch</span>
+  <p class="prt">สองคำนี้ไม่ใช่คำเดียวกัน — extensibility คือ<b>ผลลัพธ์</b> คือ range ที่ใช้งานได้จริง ส่วน static stretch เป็นแค่<b>วิธีหนึ่ง</b>ที่จะไปถึงผลลัพธ์นั้น และเป็นวิธีที่อ่อนที่สุดสำหรับเคสนี้</p>
+  <table class="t">
+    <tr><td class="k">Static stretch</td><td>ได้ <b>stretch tolerance</b> — สมองยอมให้ยืดไกลขึ้น เป็น sensory adaptation เป็นหลัก ไม่ได้ strength ในช่วงยาว และหายเร็วถ้าหยุดทำ</td></tr>
+    <tr><td class="k">Eccentric / long-length load</td><td>เพิ่ม <b>fascicle length</b> จริง แถม strength ที่ปลายช่วงมาด้วย ซึ่งคือสิ่งที่ flat back ต้องการพอดี เพราะปัญหาไม่ใช่แค่ "ยืดไม่ได้" แต่คือ "เชิงกรานไม่ยอมหมุนมาข้างหน้าตอนรับแรง"</td></tr>
+  </table>
+  <p class="prt" style="margin-top:12px">จุดที่สำคัญที่สุด: ท่ายืด hamstring มาตรฐาน — seated forward fold, standing toe touch — คือการ<b>ซ้อม posterior tilt กับ lumbar flexion</b> พอดีเป๊ะกับ pattern ที่พยายามจะแก้ ถ้ารู้สึกตึงเพราะหลังงอ แปลว่าไม่ได้ยืด hamstring แล้ว กำลังยืด lumbar erector อยู่</p>
+</section>
+
+<section class="prbox">
+  <span class="prh">Tempo notation</span>
+  <p class="prt"><b>4-3-1-0</b> = ลง 4 วิ · ค้างปลายทาง 3 วิ · ขึ้น 1 วิ · ไม่หยุดที่จุดเริ่ม</p>
+  <p class="prt">ตัวเลขนี้ไม่ใช่ของประดับ ตัวที่ทำงานจริงในโปรแกรมนี้คือ<b>เลขตัวที่หนึ่งกับตัวที่สอง</b> — eccentric ที่ยาวและ pause ที่ long length คือสิ่งที่ทำให้ได้ความยาวเส้นใยจริง ไม่ใช่จำนวนกิโล ถ้าจะต้องเลือกอย่างเดียวระหว่าง "หนักขึ้น" กับ "ช้าลง" ในโปรแกรมนี้ให้เลือกช้าลงเสมอ</p>
+</section>
+
+<section class="prbox">
+  <span class="prh">ทำไม RDL ถึงเป็น 80%</span>
+  <p class="prt">ท่าเดียวที่ทำสามอย่างพร้อมกัน: โหลด hamstring ที่ความยาวมากที่สุด · บังคับให้ pelvis หมุนไปหน้าและค้าง · ทำภายใต้แรงจริง ไม่ใช่บนพื้น</p>
+  <p class="prt">ที่เหลือในโปรแกรมคือส่วนที่ RDL ทำไม่ได้ — psoas ในช่วงหดสั้น, mobility ทีละปล้อง, งานคอ <b>ถ้าสัปดาห์ไหนทำได้แค่อย่างเดียวให้เลือก RDL</b> และถ้าทำ RDL ผิดท่า โปรแกรมที่เหลือก็ชดเชยให้ไม่ได้</p>
+</section>
+
+<section class="prbox">
+  <span class="prh">ห้ามทำ / ลด</span>
+  <table class="t">
+    <tr><td class="k no">Cue "กดหลังติดพื้น"</td><td>dead bug, hollow body, Pilates imprint — <b>คือ posterior tilt เป๊ะๆ</b> เป็นทางที่ flat back แย่ลงเร็วที่สุดในยิม</td></tr>
+    <tr><td class="k no">Seated forward fold / toe touch</td><td>ยืด lumbar erector ไม่ใช่ hamstring และซ้อม flexion ไปด้วย</td></tr>
+    <tr><td class="k no">Hip thrust ที่ cue tuck ก้น</td><td>เก็บท่าไว้ได้ <b>ตัด cue tuck ทิ้ง</b> — ตัวท่าไม่ผิด คำสั่งผิด</td></tr>
+    <tr><td class="k no">Plank ยาวๆ ที่เชิงกรานม้วนหลัง</td><td>เหตุผลเดียวกับ dead bug</td></tr>
+    <tr><td class="k no">Crunch / sit-up</td><td>lumbar flexion ล้วน</td></tr>
+    <tr><td class="k yes">Core ที่ใช้แทน</td><td>side plank · Pallof press · suitcase carry · bird-dog โดยคุม lordosis — ทั้งหมดเป็นงาน<b>ต้านการเคลื่อนไหว</b> ไม่ใช่งานงอตัว</td></tr>
+  </table>
+</section>
+
+<section class="prbox">
+  <span class="prh">Phase map</span>
+  <table class="t">
+    <tr><td class="k">Phase 1 · wk 1–4</td><td>motor control · RDL บาร์เปล่า · Daily Block เต็ม · เป้าคือ "หา lordosis เจอโดยไม่ต้องคิด"</td></tr>
+    <tr><td class="k">Phase 2 · wk 5–12</td><td>loading · เพิ่มน้ำหนักตาม progression rule · <b>depth ก่อน load เสมอ</b></td></tr>
+    <tr><td class="k">Phase 3 · wk 13+</td><td>maintain · Daily Block เหลือ 3 ครั้ง/สัปดาห์ · RDL คงไว้ตลอดไป</td></tr>
+  </table>
+</section>
+
+<section class="prbox">
+  <span class="prh">สิ่งที่ยิมแก้ไม่ได้</span>
+  <p class="prt">12 สัปดาห์ในยิม = ประมาณ <b>24 ชั่วโมง</b> · เวลานั่งก้มส่องกล้องกับ microscope = <b>หลายร้อยชั่วโมง</b> อัตราส่วนนี้บอกตรงๆ ว่าตัวแปรที่ใหญ่กว่าอยู่นอกยิม</p>
+  <table class="t">
+    <tr><td class="k">ปรับความสูงอุปกรณ์</td><td>microscope และ endoscope tower ให้ไม่ต้องก้ม — คุ้มที่สุดต่อความพยายาม</td></tr>
+    <tr><td class="k">Lumbar roll</td><td>ผ้าม้วนรองเอวเวลานั่ง ถูกและได้ผลชัดที่สุดต่อบาท</td></tr>
+    <tr><td class="k">ลุกทุก 45 นาที</td><td>ยืนแอ่นหลัง 20 วินาที ตั้งเตือนไว้</td></tr>
+    <tr><td class="k">เวรดึก</td><td>prone press-up 10 ครั้งก่อนนอน</td></tr>
+  </table>
+  <p class="prt" style="margin-top:12px">ความคาดหวังที่ควรตั้ง: หลักฐานสนับสนุนว่า strength training ช่วยเรื่อง<b>อาการและ capacity</b> ชัดกว่าที่จะเปลี่ยน posture ที่วัดได้จริง ตั้งเป้าไว้ที่ "ขยับได้ดีขึ้น ปวดน้อยลง" มากกว่า "ภาพถ่ายด้านข้างเปลี่ยน"</p>
+</section>
+
+<section class="prbox">
+  <span class="prh">Reference</span>
+  <p class="prt"><b>Sahrmann</b> · <i>Diagnosis and Treatment of Movement Impairment Syndromes</i> — บทที่แยก lumbar flexion syndrome ออกจาก extension syndrome คือกรอบที่ตรงกับเคสนี้ที่สุด</p>
+  <p class="prt"><b>McGill</b> · <i>Back Mechanic</i> — อ่านง่ายกว่ามาก แต่เอียงไปทาง pain management มากกว่า posture</p>
+</section>`;
+}
+
+/* ================= transfer ================= */
+const ioEl=document.getElementById('io');
+function buildDump(){
+  const d={v:APP_VERSION,at:new Date().toISOString(),state,hist:{},daily:{}};
+  for(const y of histIndex()){ const s=lsGet(HSHARD(y)); if(s) d.hist[y]=s; }
+  for(let i=0;i<24;i++){
+    const t=now(),m=new Date(t.getFullYear(),t.getMonth()-i,1),k=ym(m);
+    const s=lsGet(DSHARD(k)); if(s) d.daily[k]=s;
+  }
+  return JSON.stringify(d);
+}
+function openIO(mode){
+  ioEl.hidden=false;
+  const exp=mode==='export';
+  ioEl.innerHTML='<div class="iohead"><span class="eyebrow">'+(exp?'Export':'Import')+'</span></div>'+
+    '<textarea class="iota" id="iota" spellcheck="false">'+(exp?esc(buildDump()):'')+'</textarea>'+
+    '<div class="iorow">'+(exp?'<button class="btn" id="iocopy">คัดลอก</button>':'<button class="btn" id="iorun">นำเข้า (ทับของเดิม)</button>')+
+    '<button class="btn ghost" id="ioclose">ปิด</button></div><p class="iomsg" id="iomsg"></p>';
+  if(exp) document.getElementById('iota').select();
+}
+ioEl.addEventListener('click',e=>{
+  if(e.target.id==='ioclose'){ ioEl.hidden=true; ioEl.innerHTML=''; for(const b of ['export','import']) document.getElementById(b).setAttribute('aria-expanded','false'); return; }
+  if(e.target.id==='iocopy'){
+    const ta=document.getElementById('iota'); ta.select();
+    try{ document.execCommand('copy'); document.getElementById('iomsg').innerHTML='<b>คัดลอกแล้ว</b>'; }
+    catch(err){ document.getElementById('iomsg').textContent='คัดลอกอัตโนมัติไม่ได้ — เลือกทั้งหมดแล้วคัดลอกเอง'; }
+    return;
+  }
+  if(e.target.id==='iorun'){
+    const msg=document.getElementById('iomsg');
+    let d=null;
+    try{ d=JSON.parse(document.getElementById('iota').value); }catch(err){ msg.textContent='อ่าน JSON ไม่ได้'; return; }
+    if(!d||typeof d!=='object'||!d.state){ msg.textContent='ไม่ใช่ไฟล์ export ของแอปนี้'; return; }
+    lsSet(KEY,JSON.stringify(d.state));
+    const yrs=[];
+    for(const y in (d.hist||{})){ lsSet(HSHARD(y),d.hist[y]); yrs.push(Number(y)); }
+    if(yrs.length) lsSet(HIDX,JSON.stringify([...new Set(yrs)]));
+    for(const m in (d.daily||{})) lsSet(DSHARD(m),d.daily[m]);
+    msg.innerHTML='<b>นำเข้าแล้ว</b> — กำลังโหลดใหม่';
+    setTimeout(()=>location.reload(),400);
+  }
+});
+for(const id of ['export','import']){
+  document.getElementById(id).addEventListener('click',e=>{
+    const open=e.target.getAttribute('aria-expanded')!=='true';
+    for(const b of ['export','import']) document.getElementById(b).setAttribute('aria-expanded','false');
+    if(!open){ ioEl.hidden=true; ioEl.innerHTML=''; return; }
+    e.target.setAttribute('aria-expanded','true');
+    openIO(id);
+  });
+}
+
+/* ================= tabs ================= */
+const TABS=[
+ {id:'week', label:'Week',  pane:'pane-week'},
+ {id:'daily',label:'Daily', pane:'pane-daily'},
+ {id:'test', label:'Tests', pane:'pane-test'},
+ {id:'why',  label:'Why',   pane:'pane-why'}
+];
+const tabsEl=document.getElementById('tabs');
+tabsEl.innerHTML=TABS.map(t=>
+ '<button class="tab" role="tab" id="tab-'+t.id+'" data-tab="'+t.id+'" aria-selected="false" aria-controls="'+t.pane+'"><span class="tl">'+t.label+'</span></button>'
+).join('');
+function showTab(id){
+  for(const t of TABS){
+    const on=t.id===id;
+    document.getElementById('tab-'+t.id).setAttribute('aria-selected',on?'true':'false');
+    document.getElementById(t.pane).classList.toggle('on',on);
+  }
+  lsSet(UITAB,id);
+  try{ scrollTo(0,0); }catch(e){}
+}
+tabsEl.addEventListener('click',e=>{
+  const b=e.target.closest('[data-tab]');
+  if(b) showTab(b.dataset.tab);
+});
+
+/* ================= boot ================= */
+load();
+loadHist();
+rollover();
+document.getElementById('ver').textContent=APP_VERSION;
+buildWeek();
+buildDaily();
+buildTests();
+buildWhy();
+showTab(TABS.some(t=>t.id===lsGet(UITAB))?lsGet(UITAB):'week');
+</script>
+</body>
+</html>
